@@ -57,8 +57,6 @@ nav, .infos, .info,
 }
 
 
-
-
 nav{
   position: relative;
   top: 0;
@@ -117,7 +115,7 @@ nav ul li a{
 header{
     width: 100%;
     height: 100vh;
-    background: url(../Assets/Banner.jpg)no-repeat center;
+    background: url(../Assets/HomeB.jpg)no-repeat center;
     background-size: cover;
     background-position: center;
     display: flex;
@@ -165,7 +163,7 @@ header{
     
 /*Specs*/
 .specs{
-    background: url(../Assets/Tech.jpg)no-repeat center;
+    background: url(../Assets/TechB.jpg)no-repeat center;
     background-size: cover;
     min-height: 40em;
     position: relative;
@@ -217,10 +215,10 @@ header{
     color: #555;
 }
 .panel:nth-child(2){
-    background: url(../Assets/P1ccrop.jpg)no-repeat center;
+    background: url(../Assets/PanelS1.jpg)no-repeat center;
 }
 .panel:nth-child(3){
-    background: url(../Assets/P4.jpg)no-repeat center;
+    background: url(../Assets/PanelS2.jpgs)no-repeat center;
 }
 .panel:nth-child(2),
 .panel:nth-child(3){
@@ -243,7 +241,7 @@ header{
     margin: 0.7em 0;
 }
 .panel-lg{
-    background: url(../Assets/crop.jpg)no-repeat center;
+    background: url(../Assets/PanelB.jpg)no-repeat center;
     background-size: cover;
     width: 100%;
     height: 100%;
