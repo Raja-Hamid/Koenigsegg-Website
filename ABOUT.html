@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>About</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins',sans-serif;
+  }
+  .header
+  {
+    width: 100%;
+    height: 100vh;
+    background-image: url(Assets/KOENG.jpg);
+    background-color: rgba(0, 0, 0, 0.5);
+    background-blend-mode: multiply;
+    background-position: center;
+    padding: 0 7%;
+    transition: background-image 1s;
+  }
+  nav
+  {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .logo
+  {
+    width: 120px;
+    cursor: pointer;
+  }
+  nav ul
+  {
+    flex: 1;
+    text-align: right;
+  }
+  nav ul li
+  {
+    display: inline-block;
+    margin: 10px 20px;
+  }
+  nav ul li a
+  {
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+  }
+  .navbar-menu li
+  {
+    list-style: armenian;
+    display: inline-block;
+    margin: 0 20px;
+    position: relative;
+  }
+  .navbar-menu li a
+  {
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+  }
+  .navbar-menu li::after
+  {
+    content: '';
+    height: 3px;
+    width: 0;
+    background: #009688;
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    transition: 0.5s;
+  }
+  .navbar-menu li:hover::after
+  {
+    width: 100%;
+  }
+  .hero{
+    background-color: #f8f8f8;
+    overflow: hidden;
+    
+  }
+  .heading h1{
+    color: #ff6347;
+    font-size: 55px;
+    text-align: center;
+    margin-top: 35px;
+  }
+  .container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    margin: 65px auto;
+  }
+  .hero-content{
+    flex: 1;
+    width: 600px;
+    margin: 0px 25px;
+  }
+  .hero-content h2{
+    font-size: 38px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .hero-content p2{
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    color: #666;
+  }
+  .hero-content button{
+    display: inline-block;
+    background-color: #ff4500;
+    color: #fff;
+    padding: 12px 24;
+    border-radius: 5px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  .hero-content button:hover{
+    background-color: #ff6347;
+    transform: scale(1.1);
+  }
+  .hero-image{
+    flex: 1;
+    width: 600px;
+    margin: auto;
+  }
+  img{
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+
+  </style>
+</head>
+<body>
+  <div class="header" id="header">
+    <nav>
+      <img src="Assets/KON.png" class="logo">
+      <ul class="navbar-menu">
+        <li><a href="HOME.html">Home</a></li>
+        <li><a href="COLLECTION.html">Collection</a></li>
+        <li><a href="ABOUT.html">About</a></li>
+        <li><a href="CONTACT.html">Contact Us</a></li>
+      </ul>
+  </nav>
+  </div>
+  <section class="hero">
+    <div class="heading">
+      <h1>About Us</h1>
+      <div class="container">
+        <div class="hero-content">
+          <h2>The Show must Go On</h2>
+          <p>sadsadasd asdsadasdasdas sadasdasdasd sadasdasd asdsadasdasdas
+            dsadsadsad sadsada sadsad asdsadsadsa sadsadasd asdasdsad asd  sadasdasd
+            sadsad asd asdasdasdsa.
+          </p>
+          <button class="cta-button">Learn More</button>
+        </div>
+        <div class="hero-image">
+          <img src="Assets/PIC3.jpg">
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+</body>
+
+
+</html>
