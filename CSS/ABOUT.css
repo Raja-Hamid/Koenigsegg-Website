@@ -13,12 +13,11 @@ body{
 header{
     width: 100%;
     height: 100vh;
-    background-image: url(../Assets/JESKO.jpg);
-    background-color: rgba(0,0,0,0.5);
+    background-image: url(../Assets/ContactB.jpg);
+    background-color: rgba(0, 0, 0, 0.5);
     background-blend-mode: multiply;
     background-position: center;
-    background-size: cover;
-    padding: 15px;
+    padding: 0 7%;
     transition: background-image 1s;
 }
 nav{
@@ -28,6 +27,7 @@ nav{
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 .logo{
     width: 110px;
@@ -35,7 +35,7 @@ nav{
 }
 nav ul{
     flex: 1;
-    text-align: right;
+    text-align: right;  
 }
 nav ul li{
     display: inline-block;
@@ -52,7 +52,7 @@ nav ul li a{
     margin: 0 20px;
     position: relative;
 }
-.navbar-menu li a{
+.navbar-menu li a{  
     text-decoration: none;
     color: #fff;
     text-transform: uppercase;
@@ -70,25 +70,61 @@ nav ul li a{
 .navbar-menu li:hover::after{
     width: 100%;
 }
-.info{
-    width: 100%;
-    padding: 0 7%;
+.hero{
+    background-color: #f8f8f8;
+    overflow: hidden;
+}
+.heading h1{
+    color: #ff6347;
+    font-size: 55px;
+    text-align: center;
+    margin-top: 35px;
+}
+.container{
     display: flex;
+    justify-content: center;
     align-items: center;
-    color: #fff;
-    position: fixed;
-    bottom: 50px;
-    left: 0;
+    width: 90%;
+    margin: 65px auto;
 }
-.info div{
-    margin: 0 20px;
-}
-.info div h2{
-    font-size: 38px;
-    font-weight: 400;
-}
-.info .line{
+.hero-content{
     flex: 1;
-    background: #fff;
-    height: 4px;
+    width: 600px;
+    margin: 0px 25px;
+}
+.hero-content h2{
+    font-size: 38px;
+    margin-bottom: 20px;
+    color: #333;
+}
+.hero-content p2{
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    color: #666;
+}
+.hero-content button{
+    display: inline-block;
+    background-color: #ff4500;
+    color: #fff;
+    padding: 12px 24;
+    border-radius: 5px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+.hero-content button:hover{
+    background-color: #ff6347;
+    transform: scale(1.1);
+}
+.hero-image{
+    flex: 1;
+    width: 600px;
+    margin: auto;
+}
+img{
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
 }
