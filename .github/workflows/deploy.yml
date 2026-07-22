@@ -26,9 +26,14 @@ jobs:
           cache: npm
 
       # Exposes steps.pages.outputs.origin and .base_path for the build below.
+      # enablement: true turns Pages on via the API if it is not already
+      # enabled — without it this step fails with "Get Pages site failed …
+      # Not Found" on a repo that has never had Pages switched on.
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - run: npm ci
 
