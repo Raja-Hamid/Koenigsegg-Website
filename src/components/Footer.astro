@@ -3,6 +3,7 @@ import Icon from './Icon.astro';
 import LogoMark from './LogoMark.astro';
 import { site, nav, social, contact } from '../data/site';
 import { models } from '../data/models';
+import { withBase } from '../lib/paths';
 
 /* Empty hrefs are dropped, so an unfinished link can never ship as href="#". */
 const links = social.filter((s) => s.href.length > 0);
@@ -33,14 +34,14 @@ const year = new Date().getFullYear();
       <div class="link-group">
         <h2>Explore</h2>
         <ul>
-          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          {nav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
         </ul>
       </div>
 
       <div class="link-group">
         <h2>Models</h2>
         <ul>
-          {models.map((m) => <li><a href={`/collection/${m.slug}`}>{m.name}</a></li>)}
+          {models.map((m) => <li><a href={withBase(`/collection/${m.slug}`)}>{m.name}</a></li>)}
         </ul>
       </div>
 
@@ -48,7 +49,7 @@ const year = new Date().getFullYear();
         <h2>Get in touch</h2>
         <ul>
           <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
-          <li><a href="/contact">Send an enquiry</a></li>
+          <li><a href={withBase('/contact')}>Send an enquiry</a></li>
           <li><a href={site.repo} rel="noopener noreferrer" target="_blank">Source on GitHub</a></li>
         </ul>
       </div>
@@ -186,6 +187,9 @@ const year = new Date().getFullYear();
       gap: var(--space-xl);
     }
     .site-footer__links {
+      /* Pack columns left when they stack; space-between is a desktop-only
+         device for reaching the right edge. */
+      justify-content: flex-start;
       gap: var(--space-lg) var(--space-2xl);
     }
   }

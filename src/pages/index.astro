@@ -16,6 +16,7 @@ import panelLarge from '../assets/panel-large.jpg';
 import panel1 from '../assets/panel-1.jpg';
 import panel2 from '../assets/panel-2.jpg';
 import cutout from '../assets/jesko-cutout.png';
+import { withBase } from '../lib/paths';
 
 const heroStats = [
   flagship.headline.accel,
@@ -63,7 +64,7 @@ const pillars = [
   >
     <Fragment slot="actions">
       <Button href="/collection" variant="primary" icon="arrow-right">Explore the collection</Button>
-      <Button href="/about" variant="secondary">Our story</Button>
+      <Button href="/about" variant="secondary">The story</Button>
     </Fragment>
     <StatBand slot="aside" specs={heroStats} />
   </Hero>
@@ -198,7 +199,7 @@ const pillars = [
         {
           models.map((m, i) => (
             <li class="lineup__item reveal" data-reveal-delay={(i % 4) + 1}>
-              <a href={`/collection/${m.slug}`}>
+              <a href={withBase(`/collection/${m.slug}`)}>
                 <div class="lineup__media">
                   <Image src={m.image} alt={m.imageAlt} widths={[320, 560, 900]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" loading="lazy" />
                 </div>

@@ -7,6 +7,7 @@ import Button from '../../components/Button.astro';
 import Cta from '../../components/Cta.astro';
 import { models } from '../../data/models';
 import type { Model } from '../../data/models';
+import { absUrl } from '../../lib/paths';
 
 /**
  * One statically generated page per car.
@@ -51,8 +52,9 @@ const engine = model.specs.find((s) => s.label === 'Engine');
 const transmission = model.specs.find((s) => s.label === 'Transmission');
 
 /* Structured data: a Product per car plus a breadcrumb trail. additionalProperty
-   carries the spec figures a search engine can surface. */
-const pageUrl = new URL(`/collection/${model.slug}/`, Astro.site).href;
+   carries the spec figures a search engine can surface. Every URL is base-aware
+   so it matches the canonical on a project-page deploy. */
+const pageUrl = absUrl(`/collection/${model.slug}/`, Astro.site);
 const modelSchema = [
   {
     '@type': 'Product',
@@ -60,7 +62,7 @@ const modelSchema = [
     name: `Koenigsegg ${model.fullName}`,
     category: 'Hypercar',
     url: pageUrl,
-    image: new URL(`/og-${model.slug}.jpg`, Astro.site).href,
+    image: absUrl(`/og-${model.slug}.jpg`, Astro.site),
     description: model.description,
     brand: { '@type': 'Brand', name: 'Koenigsegg' },
     additionalProperty: model.specs.map((s) => ({
@@ -72,8 +74,8 @@ const modelSchema = [
   {
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.href },
-      { '@type': 'ListItem', position: 2, name: 'Collection', item: new URL('/collection/', Astro.site).href },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: absUrl('/', Astro.site) },
+      { '@type': 'ListItem', position: 2, name: 'Collection', item: absUrl('/collection/', Astro.site) },
       { '@type': 'ListItem', position: 3, name: model.fullName, item: pageUrl },
     ],
   },

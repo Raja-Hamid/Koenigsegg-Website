@@ -17,7 +17,7 @@ export const site = {
   tagline: 'A tribute to the cars Koenigsegg has built since 1994.',
   description:
     'A fan-made concept site celebrating Koenigsegg — the Jesko, Gemera, Regera and Agera RS. Built as a front-end portfolio piece.',
-  locale: 'en',
+  locale: 'en-GB',
   /** Every page renders this. It is the difference between a tribute and a forgery. */
   disclaimer:
     'This is an independent fan-made concept site created as a front-end portfolio piece. It is not affiliated with, endorsed by, or connected to Koenigsegg Automotive AB. All trademarks and vehicle imagery belong to their respective owners.',

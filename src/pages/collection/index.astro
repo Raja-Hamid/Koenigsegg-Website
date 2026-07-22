@@ -10,6 +10,7 @@ import Icon from '../../components/Icon.astro';
 import { models } from '../../data/models';
 
 import heroImg from '../../assets/jesko.jpg';
+import { withBase } from '../../lib/paths';
 
 /**
  * Collection index.
@@ -39,7 +40,7 @@ const headlineOf = (m: (typeof models)[number]) => [
     titleAccent="four arguments"
     lede="Every model has its own page and its own figures. Nothing here is hidden behind a tab."
     image={heroImg}
-    imageAlt="A Koenigsegg Jesko lit from one side against a dark studio backdrop"
+    imageAlt="An orange open-top Koenigsegg Jesko at speed on a runway at sunset, front three-quarter view"
     size="compact"
     align="center"
   />
@@ -56,7 +57,7 @@ const headlineOf = (m: (typeof models)[number]) => [
         {
           models.map((m, i) => (
             <li class="model-card reveal" data-reveal-delay={(i % 4) + 1}>
-              <a href={`/collection/${m.slug}`}>
+              <a href={withBase(`/collection/${m.slug}`)}>
                 <div class="model-card__media">
                   <Image
                     src={m.image}

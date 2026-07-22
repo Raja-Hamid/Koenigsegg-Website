@@ -350,6 +350,9 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
         counter.textContent = `${message.value.length} / ${max}`;
       };
       message.addEventListener('input', sync);
+      /* form.reset() (on successful submit) fires a 'reset' event but does not
+         dispatch 'input', so re-sync after the browser clears the field. */
+      form.addEventListener('reset', () => requestAnimationFrame(sync));
       sync();
     }
 

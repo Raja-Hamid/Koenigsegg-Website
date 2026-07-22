@@ -2,6 +2,7 @@
 import { nav, contact } from '../data/site';
 import { models } from '../data/models';
 import LogoMark from './LogoMark.astro';
+import { withBase } from '../lib/paths';
 
 /**
  * Site navigation.
@@ -28,7 +29,7 @@ const inSection = (href: string) =>
 ---
 
 <header class="site-nav" data-nav>
-  <a class="site-nav__logo" href="/" aria-label="Koenigsegg concept — home">
+  <a class="site-nav__logo" href={withBase('/')} aria-label="Koenigsegg concept — home">
     <LogoMark size={44} />
   </a>
 
@@ -51,7 +52,7 @@ const inSection = (href: string) =>
         nav.map((item) => (
           <li>
             <a
-              href={item.href}
+              href={withBase(item.href)}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
               data-in-section={inSection(item.href) ? '' : undefined}
             >
@@ -67,9 +68,9 @@ const inSection = (href: string) =>
     <div class="site-nav__extra">
       <p class="site-nav__extra-label">The cars</p>
       <ul class="site-nav__models">
-        {models.map((m) => <li><a href={`/collection/${m.slug}`}>{m.name}</a></li>)}
+        {models.map((m) => <li><a href={withBase(`/collection/${m.slug}`)}>{m.name}</a></li>)}
       </ul>
-      <a class="site-nav__cta" href="/contact">Get in touch</a>
+      <a class="site-nav__cta" href={withBase('/contact')}>Get in touch</a>
       <a class="site-nav__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
     </div>
   </nav>

@@ -4,6 +4,7 @@ import SectionHeader from '../components/SectionHeader.astro';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
 import { models } from '../data/models';
+import { withBase } from '../lib/paths';
 
 /**
  * 404.
@@ -51,7 +52,7 @@ import { models } from '../data/models';
         {
           models.map((m, i) => (
             <li class="jump__item reveal" data-reveal-delay={(i % 4) + 1}>
-              <a href={`/collection/${m.slug}`}>
+              <a href={withBase(`/collection/${m.slug}`)}>
                 <span class="jump__name">{m.name}</span>
                 <span class="jump__meta">
                   {m.years} ·{' '}

@@ -12,6 +12,7 @@ import '../styles/base.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { withBase, absUrl } from '../lib/paths';
 
 interface Props {
   title: string;
@@ -32,7 +33,8 @@ const { title, description, ogImage = '/og-default.jpg', noindex = false, schema
 /* Keep the trailing slash so this agrees with the sitemap; a canonical that
    disagrees with the URL you submitted is worse than none. */
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogUrl = new URL(ogImage, Astro.site).href;
+const ogUrl = absUrl(ogImage, Astro.site);
+const homeUrl = absUrl('/', Astro.site);
 const fullTitle = title === 'Home' ? site.titleSuffix : `${title} · ${site.titleSuffix}`;
 
 const jsonLd = {
@@ -40,9 +42,9 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': `${Astro.site?.href}#website`,
+      '@id': `${homeUrl}#website`,
       name: site.titleSuffix,
-      url: Astro.site?.href,
+      url: homeUrl,
       description: site.description,
       author: { '@type': 'Person', name: site.author },
       disambiguatingDescription: site.disclaimer,
@@ -79,10 +81,10 @@ const jsonLd = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogUrl} />
 
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="32x32" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
     <meta name="theme-color" content="#0a0a0a" />
 
     <script is:inline set:html={JSON.stringify(jsonLd)} type="application/ld+json" />
