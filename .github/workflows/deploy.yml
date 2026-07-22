@@ -18,22 +18,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
       # Exposes steps.pages.outputs.origin and .base_path for the build below.
-      # enablement: true turns Pages on via the API if it is not already
-      # enabled — without it this step fails with "Get Pages site failed …
-      # Not Found" on a repo that has never had Pages switched on.
+      #
+      # REQUIRES a one-time repo setting: Settings → Pages → Build and
+      # deployment → Source: "GitHub Actions". Without it this step fails with
+      # "Get Pages site failed … Not Found". The `enablement: true` parameter
+      # does NOT work around it — creating a Pages site is an admin operation
+      # the default GITHUB_TOKEN cannot perform ("Resource not accessible by
+      # integration").
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - run: npm ci
 
@@ -51,7 +53,7 @@ jobs:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
           PUBLIC_CONTACT_ENDPOINT: ${{ secrets.PUBLIC_CONTACT_ENDPOINT }}
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
