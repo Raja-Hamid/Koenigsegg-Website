@@ -1,0 +1,115 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * The site's only button.
+ *
+ * The old build had eight variants across four files — two of them named
+ * "secondary" on the same page with different hover behaviour. Renders as
+ * <a> when given an href, <button> otherwise.
+ */
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  type?: 'button' | 'submit';
+  icon?: 'arrow-right' | 'arrow-left';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  variant = 'primary',
+  type = 'button',
+  icon,
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const cls = `btn btn--${variant} ${className}`.trim();
+---
+
+<Tag class={cls} href={href} type={href ? undefined : type} {...rest}>
+  <span><slot /></span>
+  {icon && <Icon name={icon} size={17} />}
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    /* 48px min height — comfortably over the 44px target minimum. */
+    min-height: 48px;
+    padding: var(--space-xs) var(--space-lg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-base) var(--ease-smooth),
+      border-color var(--duration-base) var(--ease-smooth),
+      color var(--duration-base) var(--ease-smooth),
+      box-shadow var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .btn :global(.icon) {
+    transition: translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .btn--primary {
+    background: var(--gradient-gold);
+    color: var(--ink-900);
+  }
+
+  .btn--secondary {
+    border-color: var(--border-strong);
+    color: var(--text);
+    background: rgb(255 255 255 / 0.02);
+  }
+  /* Colour shift is fine on touch; keep it outside the hover guard. */
+  .btn--secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Transform lifts only where a real pointer can hover, so they do not
+     stick after a tap on touch devices. */
+  @media (hover: hover) {
+    .btn:hover :global(.icon) {
+      translate: 3px 0;
+    }
+    .btn--primary:hover {
+      translate: 0 -2px;
+      box-shadow: var(--shadow-gold);
+    }
+    .btn--secondary:hover {
+      translate: 0 -2px;
+    }
+  }
+
+  .btn--ghost {
+    padding-inline: 0;
+    min-height: 44px;
+    color: var(--gold);
+    border-radius: var(--radius-xs);
+  }
+  .btn--ghost:hover {
+    color: var(--gold-light);
+  }
+
+  .btn[disabled],
+  .btn[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    translate: none;
+    box-shadow: none;
+  }
+</style>

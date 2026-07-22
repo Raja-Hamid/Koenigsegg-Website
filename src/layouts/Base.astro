@@ -1,0 +1,129 @@
+---
+import '@fontsource/playfair-display/latin-400.css';
+import '@fontsource/playfair-display/latin-600.css';
+import '@fontsource/playfair-display/latin-700.css';
+import '@fontsource/poppins/latin-400.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-600.css';
+
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path to an OG image in /public. Falls back to the site default. */
+  ogImage?: string;
+  /** Suppress indexing (used by 404). */
+  noindex?: boolean;
+  /**
+   * Extra JSON-LD graph nodes for this page (e.g. a Product per model, a
+   * BreadcrumbList). Merged into the site-wide @graph.
+   */
+  schema?: Record<string, unknown>[];
+}
+
+const { title, description, ogImage = '/og-default.jpg', noindex = false, schema = [] } = Astro.props;
+
+/* Keep the trailing slash so this agrees with the sitemap; a canonical that
+   disagrees with the URL you submitted is worse than none. */
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogUrl = new URL(ogImage, Astro.site).href;
+const fullTitle = title === 'Home' ? site.titleSuffix : `${title} · ${site.titleSuffix}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${Astro.site?.href}#website`,
+      name: site.titleSuffix,
+      url: Astro.site?.href,
+      description: site.description,
+      author: { '@type': 'Person', name: site.author },
+      disambiguatingDescription: site.disclaimer,
+    },
+    ...schema,
+  ],
+};
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.titleSuffix} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:alt" content={`${title} — ${site.titleSuffix}`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_GB" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <script is:inline set:html={JSON.stringify(jsonLd)} type="application/ld+json" />
+
+    {/* Set synchronously so JS-gated styles never flash, and never hide
+        content when scripting is off. */}
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      /* Reveal-on-scroll. Applied to inner wrappers only, so no <section>
+         ever carries a transform (which used to silently break the fixed
+         background on the specs band). Unobserves once revealed. */
+      const targets = document.querySelectorAll<HTMLElement>('.reveal');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduce || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-revealed'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries, obs) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-revealed');
+              obs.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -10% 0px' },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,248 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import StatBand from '../../components/StatBand.astro';
+import Button from '../../components/Button.astro';
+import Cta from '../../components/Cta.astro';
+import Icon from '../../components/Icon.astro';
+import { models } from '../../data/models';
+
+import heroImg from '../../assets/jesko.jpg';
+
+/**
+ * Collection index.
+ *
+ * The old build put all four cars behind JS "model tabs" on one URL: nothing
+ * was linkable, nothing was indexable, and the first tab click overwrote
+ * "330 mph" with a bare "330". Each car now has a real route at
+ * /collection/{slug} and this page is a plain index of them — there is no
+ * client-side switching here at all.
+ */
+
+/** The three headline figures, in a fixed order, straight from models.ts. */
+const headlineOf = (m: (typeof models)[number]) => [
+  m.headline.accel,
+  m.headline.topSpeed,
+  m.headline.power,
+];
+---
+
+<Base
+  title="Hypercar Collection — Jesko, Gemera, Regera, Agera"
+  description="The four Koenigsegg models in this concept build — Jesko Absolut, Gemera, Regera and Agera RS — each with its own page and full specification."
+>
+  <Hero
+    eyebrow="The collection"
+    title="Four cars,"
+    titleAccent="four arguments"
+    lede="Every model has its own page and its own figures. Nothing here is hidden behind a tab."
+    image={heroImg}
+    imageAlt="A Koenigsegg Jesko lit from one side against a dark studio backdrop"
+    size="compact"
+    align="center"
+  />
+
+  <!-- ── Lineup ──────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="lineup-heading">
+    <div class="container">
+      <SectionHeader id="lineup-heading" eyebrow="2015 onwards" title="The lineup" class="reveal">
+        Two cars still in production, two now finished. Pick one for the full
+        specification, the story behind it, and where its numbers come from.
+      </SectionHeader>
+
+      <ul class="models">
+        {
+          models.map((m, i) => (
+            <li class="model-card reveal" data-reveal-delay={(i % 4) + 1}>
+              <a href={`/collection/${m.slug}`}>
+                <div class="model-card__media">
+                  <Image
+                    src={m.image}
+                    alt={m.imageAlt}
+                    widths={[360, 640, 900]}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div class="model-card__body">
+                  <p class="model-card__years">{m.years}</p>
+                  <h3>{m.name}</h3>
+                  <p class="model-card__tagline">{m.tagline}</p>
+
+                  {/* Wrapper so the band can be tuned for a narrow card
+                      without touching the shared component. */}
+                  <div class="model-card__stats">
+                    <StatBand specs={headlineOf(m)} variant="bare" />
+                  </div>
+
+                  <span class="model-card__cue">
+                    View the {m.name}
+                    <Icon name="arrow-right" size={15} />
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <Cta title="Curious how this was put together?">
+    A fan-made concept build, not a configurator — but the enquiry form is
+    wired up properly, and every figure on these pages comes from one file.
+    <Fragment slot="actions">
+      <Button href="/contact" variant="primary" icon="arrow-right">Get in touch</Button>
+      <Button href="/about" variant="secondary">Read the story</Button>
+    </Fragment>
+  </Cta>
+</Base>
+
+<style>
+  /* ---- lineup grid ---- */
+  .models {
+    display: grid;
+    /* min(100%, …) keeps a single column intact at 320px instead of
+       forcing a track wider than the viewport. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    list-style: none;
+  }
+
+  .model-card > a {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition:
+      border-color var(--duration-base) var(--ease-smooth),
+      box-shadow var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .model-card > a:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Transform-only hover, guarded so a tap on a touch device doesn't leave
+     the card stuck in its lifted state. */
+  @media (hover: hover) {
+    .model-card > a:hover {
+      translate: 0 var(--hover-lift);
+    }
+  }
+
+  /* ---- card media ---- */
+  .model-card__media {
+    overflow: hidden;
+  }
+
+  .model-card__media :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: scale var(--duration-slow) var(--ease-smooth);
+  }
+
+  @media (hover: hover) {
+    .model-card > a:hover .model-card__media :global(img) {
+      scale: 1.06;
+    }
+  }
+
+  /* ---- card body ---- */
+  .model-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding: var(--space-md);
+    flex: 1;
+  }
+
+  .model-card__years {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .model-card__body h3 {
+    font-size: var(--fs-xl);
+  }
+
+  .model-card__tagline {
+    font-size: var(--fs-sm);
+    line-height: var(--lh-relaxed);
+    color: var(--text-muted);
+    margin-top: var(--space-2xs);
+    /* Pushes the figures and the cue to the bottom so every card in a
+       row lines up regardless of tagline length. */
+    flex: 1;
+  }
+
+  /* ---- headline figures ---- */
+  .model-card__stats {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  /* A grid rather than the component's default wrapping flex row: three
+     even tracks that collapse to two, then one, without a ragged edge. */
+  .model-card__stats :global(.stat-band) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 84px), 1fr));
+    gap: var(--space-sm);
+  }
+
+  .model-card__stats :global(.stat-band__value) {
+    font-size: var(--fs-lg);
+  }
+
+  .model-card__stats :global(.stat-band__unit) {
+    font-size: var(--fs-xs);
+  }
+
+  /* ---- card cue ---- */
+  .model-card__cue {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    margin-top: var(--space-md);
+    font-size: var(--fs-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .model-card__cue :global(.icon) {
+    transition: translate var(--duration-base) var(--ease-smooth);
+  }
+
+  @media (hover: hover) {
+    .model-card > a:hover .model-card__cue :global(.icon) {
+      translate: 3px 0;
+    }
+  }
+
+
+
+
+  /* ---- responsive ---- */
+  @media (max-width: 480px) {
+    .model-card__body {
+      padding: var(--space-sm);
+    }
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+/**
+ * Animated figure.
+ *
+ * Fixes from the audit:
+ *  - the old `data-speed` was a per-tick delay in a fixed 100-step loop, so
+ *    the "gear box" counter took ~50 seconds and never visibly finished.
+ *    This is duration-based and rAF-driven, so every counter lands together.
+ *  - the final value is in the HTML, so it is correct with JS disabled
+ *    (the old markup shipped a literal "0").
+ *  - it was an <h2>, which put headings named "0" in the document outline.
+ *  - the visible number is aria-hidden and paired with a spoken label, so
+ *    screen readers get "531 kilometres per hour" once, not a ticking count.
+ */
+interface Props {
+  value: number;
+  label: string;
+  unit?: string;
+  /** Full words for assistive tech, where the abbreviation reads badly. */
+  spokenUnit?: string;
+  duration?: number;
+}
+
+const { value, label, unit = '', spokenUnit, duration = 1600 } = Astro.props;
+
+const SPOKEN: Record<string, string> = {
+  'km/h': 'kilometres per hour',
+  hp: 'horsepower',
+  LST: 'Light Speed Transmission',
+  s: 'seconds',
+};
+
+const spoken = spokenUnit ?? SPOKEN[unit] ?? unit;
+const display = value.toLocaleString('en-GB');
+---
+
+<div class="counter reveal">
+  <p class="counter__figure" aria-hidden="true">
+    <span data-counter data-value={value} data-duration={duration}>{display}</span>
+    {unit && <span class="counter__unit">{unit}</span>}
+  </p>
+  <p class="visually-hidden">{display} {spoken} — {label}</p>
+  <p class="counter__label" aria-hidden="true">{label}</p>
+</div>
+
+<style>
+  .counter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding-block: var(--space-sm);
+    border-top: 1px solid var(--border);
+  }
+
+  .counter__figure {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+    font-family: var(--font-display);
+    font-size: var(--fs-3xl);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counter__unit {
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-weight: var(--weight-normal);
+    color: var(--text-muted);
+  }
+
+  .counter__label {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+</style>
+
+<script>
+  const nodes = document.querySelectorAll<HTMLElement>('[data-counter]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (nodes.length && !reduce && 'IntersectionObserver' in window) {
+    const fmt = new Intl.NumberFormat('en-GB');
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const run = (el: HTMLElement) => {
+      const target = Number(el.dataset.value ?? '0');
+      const duration = Number(el.dataset.duration ?? '1600');
+      const start = performance.now();
+
+      const step = (now: number) => {
+        const t = Math.min((now - start) / duration, 1);
+        el.textContent = fmt.format(Math.round(target * easeOut(t)));
+        if (t < 1) requestAnimationFrame(step);
+      };
+
+      el.textContent = '0';
+      requestAnimationFrame(step);
+    };
+
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          run(entry.target as HTMLElement);
+          obs.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.4 },
+    );
+
+    nodes.forEach((n) => io.observe(n));
+  }
+</script>

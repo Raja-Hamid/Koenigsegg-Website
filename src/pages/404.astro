@@ -1,0 +1,189 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { models } from '../data/models';
+
+/**
+ * 404.
+ *
+ * Deliberately not a hero: a full-bleed 100svh panel with three lines in it
+ * is exactly the "empty screen" this page is supposed to avoid on a phone.
+ * Two ordinary sections, sized by their content, sitting under the fixed nav.
+ *
+ * The likeliest wrong URL on this site is a mistyped model slug, so every
+ * model gets a direct link rather than dumping the visitor on the homepage.
+ */
+---
+
+<Base
+  title="Page not found"
+  description="That page does not exist on this concept build. Head back to the homepage, or jump straight to one of the four cars."
+  noindex={true}
+>
+  <!-- ── The apology ─────────────────────────────────────── -->
+  <section class="section notfound">
+    <div class="container container--narrow notfound__inner reveal">
+      <p class="notfound__code gold-text" aria-hidden="true">404</p>
+
+      <SectionHeader eyebrow="Page not found" title="This one took a wrong turn" as="h1">
+        The address you followed does not exist here. It was probably mistyped — or it
+        points at something this concept build never had in the first place.
+      </SectionHeader>
+
+      <div class="notfound__actions">
+        <Button href="/" variant="primary">Back to the homepage</Button>
+        <Button href="/collection" variant="secondary" icon="arrow-right">
+          Browse the collection
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Model shortcuts ─────────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="jump-heading">
+    <div class="container container--narrow reveal" data-reveal-delay="1">
+      <h2 id="jump-heading" class="jump__title">Or go straight to a car</h2>
+      <p class="lede jump__lede">Four models, four separate arguments about what a road car can be.</p>
+
+      <ul class="jump">
+        {
+          models.map((m, i) => (
+            <li class="jump__item reveal" data-reveal-delay={(i % 4) + 1}>
+              <a href={`/collection/${m.slug}`}>
+                <span class="jump__name">{m.name}</span>
+                <span class="jump__meta">
+                  {m.years} ·{' '}
+                  <span class="jump__figure">{m.headline.topSpeed.value}</span>
+                  <span class="jump__unit"> {m.headline.topSpeed.unit}</span>
+                </span>
+                <span class="jump__arrow">
+                  <Icon name="arrow-right" size={17} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---- apology ---- */
+  .notfound {
+    /* Clears the fixed nav without pretending to be a hero. */
+    padding-block-start: calc(var(--section-y) + var(--space-2xl));
+    background:
+      radial-gradient(ellipse at 50% 0%, rgb(var(--gold-rgb) / 0.09), transparent 62%),
+      var(--bg);
+  }
+
+  .notfound__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    text-align: center;
+  }
+
+  .notfound__code {
+    font-family: var(--font-display);
+    font-size: var(--fs-display);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs);
+  }
+
+  /* ---- model shortcuts ---- */
+  .jump__title {
+    font-size: var(--fs-2xl);
+  }
+
+  .jump__lede {
+    margin-top: var(--space-2xs);
+  }
+
+  .jump {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    list-style: none;
+  }
+
+  .jump__item a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2xs);
+    height: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    transition:
+      border-color var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .jump__item a:hover {
+    border-color: var(--border-strong);
+  }
+
+  .jump__name {
+    grid-column: 1;
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: var(--weight-semibold);
+    line-height: var(--lh-snug);
+  }
+
+  .jump__meta {
+    grid-column: 1;
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .jump__figure {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .jump__unit {
+    color: var(--gold);
+  }
+
+  .jump__arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    color: var(--gold);
+    transition: translate var(--duration-base) var(--ease-smooth);
+  }
+
+  /* Transform-only hovers: guarded so neither the card lift nor the arrow
+     nudge sticks after a tap on touch devices. The border-colour feedback
+     on the link stays unguarded so taps still register. */
+  @media (hover: hover) {
+    .jump__item a:hover {
+      translate: 0 var(--hover-lift);
+    }
+
+    .jump__item a:hover .jump__arrow {
+      translate: 3px 0;
+    }
+  }
+</style>

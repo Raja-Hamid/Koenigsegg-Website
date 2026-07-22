@@ -1,0 +1,436 @@
+---
+import { nav, contact } from '../data/site';
+import { models } from '../data/models';
+import LogoMark from './LogoMark.astro';
+
+/**
+ * Site navigation.
+ *
+ * Fixes from the audit, all of which used to need four hand-edits:
+ *  - the toggle is a real <button> with aria-expanded (was an inert <div>)
+ *  - the drawer is inert when closed, so its links leave the tab order
+ *  - focus is trapped inside the open drawer and restored to the toggle on close
+ *  - Escape closes it, a scrim closes it, and body scroll is locked while open
+ *  - the active link carries aria-current="page"
+ *  - the logo is wrapped in a link (it used to have cursor:pointer and no href)
+ */
+/* Strip the trailing slash, but never strip "/" itself down to "". */
+const normPath = (s: string) => s.replace(/\/+$/, '') || '/';
+const norm = normPath(Astro.url.pathname);
+
+/* aria-current="page" means "this IS the page you are on". On
+   /collection/jesko the Collection link is an ancestor, not the current
+   page — marking it `page` tells a screen-reader user they are somewhere
+   they are not. Ancestors get the highlight without the announcement. */
+const isCurrent = (href: string) => norm === normPath(href);
+const inSection = (href: string) =>
+  href !== '/' && norm.startsWith(normPath(href) + '/') && !isCurrent(href);
+---
+
+<header class="site-nav" data-nav>
+  <a class="site-nav__logo" href="/" aria-label="Koenigsegg concept — home">
+    <LogoMark size={44} />
+  </a>
+
+  <button
+    class="site-nav__toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="primary-nav"
+    aria-label="Open menu"
+    data-nav-toggle
+  >
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="site-nav__scrim" data-nav-scrim hidden></div>
+
+  <nav id="primary-nav" class="site-nav__menu" aria-label="Primary" data-nav-menu>
+    <ul>
+      {
+        nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              data-in-section={inSection(item.href) ? '' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    {/* Drawer-only. The old drawer was four words in a void — the one
+        moment a visitor explicitly asks "what have you got?". */}
+    <div class="site-nav__extra">
+      <p class="site-nav__extra-label">The cars</p>
+      <ul class="site-nav__models">
+        {models.map((m) => <li><a href={`/collection/${m.slug}`}>{m.name}</a></li>)}
+      </ul>
+      <a class="site-nav__cta" href="/contact">Get in touch</a>
+      <a class="site-nav__mail" href={`mailto:${contact.email}`}>{contact.email}</a>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: var(--z-nav);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    /* Full-bleed background, but content aligned to the same --container grid
+       as the page below it — otherwise the logo hugs the screen edge on
+       ultra-wide displays while everything under it stops at 1400px. */
+    padding-block: var(--space-md);
+    padding-inline: max(var(--gutter), calc((100% - var(--container)) / 2));
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.8) 0%, transparent 100%);
+    transition:
+      background var(--duration-base) var(--ease-smooth),
+      padding var(--duration-base) var(--ease-smooth);
+  }
+
+  .site-nav.is-scrolled {
+    background: rgb(10 10 10 / 0.95);
+    backdrop-filter: blur(20px);
+    padding-block: var(--space-sm);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .site-nav__logo {
+    /* The mark itself scales down on mobile, but the hit area must not
+       drop below 44px. */
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: var(--radius-sm);
+    transition: scale var(--duration-fast) var(--ease-smooth);
+  }
+  @media (hover: hover) {
+    .site-nav__logo:hover {
+      scale: 1.06;
+    }
+  }
+  .site-nav__logo :global(.logo-mark) {
+    width: clamp(38px, 3.4vw, 46px);
+    height: auto;
+  }
+
+  .site-nav__menu ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--space-md), 3vw, var(--space-xl));
+    list-style: none;
+  }
+
+  .site-nav__menu a {
+    position: relative;
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text);
+    /* 44px minimum target — nav links used to be 35px tall. */
+    padding-block: calc((44px - 1.4em) / 2);
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .site-nav__menu a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-gold);
+    transition: width var(--duration-base) var(--ease-smooth);
+  }
+
+  .site-nav__menu a:hover,
+  .site-nav__menu a[aria-current='page'],
+  .site-nav__menu a[data-in-section] {
+    color: var(--gold);
+  }
+
+  .site-nav__menu a:hover::after,
+  .site-nav__menu a[aria-current='page']::after,
+  .site-nav__menu a[data-in-section]::after {
+    width: 100%;
+  }
+
+  /* ---- hamburger ---- */
+  .site-nav__toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    /* 44x44 target — the old <div> hit area was 25x16. */
+    width: 44px;
+    height: 44px;
+    padding: 10px 8px;
+    /* Must sit ABOVE the drawer or the close button is painted underneath it. */
+    z-index: calc(var(--z-drawer) + 1);
+  }
+
+  .site-nav__toggle span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--text);
+    border-radius: 2px;
+    transition: var(--transition-smooth);
+  }
+
+  .site-nav__toggle[aria-expanded='true'] span:nth-child(1) {
+    translate: 0 7px;
+    rotate: 45deg;
+  }
+  .site-nav__toggle[aria-expanded='true'] span:nth-child(2) {
+    opacity: 0;
+  }
+  .site-nav__toggle[aria-expanded='true'] span:nth-child(3) {
+    translate: 0 -7px;
+    rotate: -45deg;
+  }
+
+  /* Drawer-only content: hidden entirely at desktop widths. */
+  .site-nav__extra {
+    display: none;
+  }
+
+  .site-nav__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-smooth);
+  }
+  .site-nav__scrim.is-open {
+    opacity: 1;
+  }
+
+  @media (max-width: 860px) {
+    .site-nav__toggle {
+      display: flex;
+    }
+
+    .site-nav__menu {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: var(--z-drawer);
+      width: min(84vw, 340px);
+      /* dvh so the drawer is not cut off by mobile browser chrome */
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-lg);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: calc(var(--space-4xl) - 1rem) var(--space-lg) var(--space-lg);
+      background: rgb(10 10 10 / 0.98);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
+      translate: 100% 0;
+      transition: translate var(--duration-base) var(--ease-smooth);
+    }
+
+    .site-nav__menu.is-open {
+      translate: 0 0;
+    }
+
+    .site-nav__menu > ul {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      width: 100%;
+    }
+
+    .site-nav__menu > ul li {
+      width: 100%;
+      border-bottom: 1px solid var(--border-neutral);
+    }
+
+    .site-nav__menu > ul a {
+      font-size: var(--fs-xl);
+      font-family: var(--font-display);
+      font-weight: var(--weight-semibold);
+      text-transform: none;
+      letter-spacing: var(--tracking-tight);
+      padding-block: var(--space-xs);
+      width: 100%;
+    }
+
+    .site-nav__menu > ul a::after {
+      bottom: 4px;
+    }
+
+    .site-nav__extra {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xs);
+    }
+
+    .site-nav__extra-label {
+      font-size: var(--fs-2xs);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* Needs the parent in the selector: `.site-nav__menu > ul` (0,3,1)
+       otherwise outranks a bare `.site-nav__models` (0,2,0) and the grid
+       silently never applies. */
+    .site-nav__menu .site-nav__models {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 var(--space-sm);
+      list-style: none;
+      margin-bottom: var(--space-2xs);
+    }
+
+    .site-nav__models a {
+      display: block;
+      font-size: var(--fs-sm);
+      color: var(--text-muted);
+      padding-block: calc((44px - 1.5em) / 2);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .site-nav__models a:hover {
+      color: var(--gold);
+    }
+    .site-nav__models a::after {
+      display: none;
+    }
+
+    .site-nav__cta {
+      display: grid;
+      place-items: center;
+      min-height: 48px;
+      padding-inline: var(--space-md);
+      background: var(--gradient-gold);
+      color: var(--ink-900);
+      border-radius: var(--radius-sm);
+      font-size: var(--fs-xs);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+    }
+
+    .site-nav__mail {
+      font-size: var(--fs-xs);
+      color: var(--text-subtle);
+      text-align: center;
+      padding-block: var(--space-2xs);
+      overflow-wrap: anywhere;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-nav]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-nav-menu]');
+  const scrim = document.querySelector<HTMLElement>('[data-nav-scrim]');
+
+  if (root && toggle && menu && scrim) {
+    const mq = window.matchMedia('(max-width: 860px)');
+    let open = false;
+
+    const focusables = () =>
+      Array.from(menu.querySelectorAll<HTMLElement>('a[href]')).filter(
+        (el) => el.offsetParent !== null,
+      );
+
+    /** Links must leave the tab order when the drawer is shut. */
+    const syncInert = () => {
+      if (mq.matches && !open) menu.setAttribute('inert', '');
+      else menu.removeAttribute('inert');
+    };
+
+    const setOpen = (next: boolean) => {
+      open = next;
+      toggle.setAttribute('aria-expanded', String(next));
+      toggle.setAttribute('aria-label', next ? 'Close menu' : 'Open menu');
+      menu.classList.toggle('is-open', next);
+      scrim.classList.toggle('is-open', next);
+      document.body.style.overflow = next ? 'hidden' : '';
+
+      if (next) {
+        scrim.hidden = false;
+        syncInert();
+        focusables()[0]?.focus();
+      } else {
+        syncInert();
+        window.setTimeout(() => {
+          if (!open) scrim.hidden = true;
+        }, 320);
+      }
+    };
+
+    toggle.addEventListener('click', () => setOpen(!open));
+    scrim.addEventListener('click', () => {
+      setOpen(false);
+      toggle.focus();
+    });
+
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a') && open) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!open) return;
+
+      if (e.key === 'Escape') {
+        setOpen(false);
+        toggle.focus();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const items = [toggle, ...focusables()];
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    /* Resizing past the breakpoint must not leave a half-open drawer. */
+    mq.addEventListener('change', () => {
+      if (!mq.matches && open) setOpen(false);
+      syncInert();
+    });
+    syncInert();
+
+    /* Scroll state, throttled through rAF — the old build ran this
+       unthrottled on every scroll event, twice per page. */
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        root.classList.toggle('is-scrolled', window.scrollY > 100);
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+</script>

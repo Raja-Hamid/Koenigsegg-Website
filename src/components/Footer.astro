@@ -1,0 +1,192 @@
+---
+import Icon from './Icon.astro';
+import LogoMark from './LogoMark.astro';
+import { site, nav, social, contact } from '../data/site';
+import { models } from '../data/models';
+
+/* Empty hrefs are dropped, so an unfinished link can never ship as href="#". */
+const links = social.filter((s) => s.href.length > 0);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <LogoMark size={44} />
+      <p class="site-footer__tagline">{site.tagline}</p>
+      {
+        links.length > 0 && (
+          <ul class="site-footer__social">
+            {links.map((s) => (
+              <li>
+                <a href={s.href} rel="noopener noreferrer" target="_blank">
+                  <Icon name={s.label.toLowerCase() as 'github'} size={18} label={`${site.author} on ${s.label}`} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <nav class="site-footer__links" aria-label="Footer">
+      <div class="link-group">
+        <h2>Explore</h2>
+        <ul>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="link-group">
+        <h2>Models</h2>
+        <ul>
+          {models.map((m) => <li><a href={`/collection/${m.slug}`}>{m.name}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="link-group">
+        <h2>Get in touch</h2>
+        <ul>
+          <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+          <li><a href="/contact">Send an enquiry</a></li>
+          <li><a href={site.repo} rel="noopener noreferrer" target="_blank">Source on GitHub</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="site-footer__base">
+    <p class="site-footer__disclaimer">{site.disclaimer}</p>
+    <p class="site-footer__copy">
+      &copy; {year} {site.author}. Concept build, not a commercial product.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border-neutral);
+    padding: var(--space-3xl) var(--gutter) var(--space-lg);
+  }
+
+  .site-footer__inner {
+    max-width: var(--container);
+    margin-inline: auto;
+    display: grid;
+    /* Brand shrinks to its content; the link block takes the rest and spreads
+       its three columns across it — so there is no ~560px hole in the middle
+       between a slack brand column and a right-hugging link block. */
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .site-footer__brand :global(.logo-mark) {
+    width: 44px;
+    height: auto;
+  }
+
+  .site-footer__tagline {
+    margin-top: var(--space-sm);
+    max-width: 34ch;
+    color: var(--text-subtle);
+    font-size: var(--fs-sm);
+  }
+
+  .site-footer__social {
+    display: flex;
+    gap: var(--space-2xs);
+    margin-top: var(--space-md);
+    list-style: none;
+  }
+
+  .site-footer__social a {
+    display: grid;
+    place-items: center;
+    /* 44px target — these were 40px circles. */
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-muted);
+    transition: var(--transition-smooth);
+  }
+
+  .site-footer__social a:hover {
+    color: var(--ink-900);
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    /* Spread the three groups across the whole column so the first sits near
+       the brand and the last reaches the right edge. */
+    justify-content: space-between;
+    gap: var(--space-lg) var(--space-2xl);
+  }
+
+  .link-group h2 {
+    font-family: var(--font-body);
+    font-size: var(--fs-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--space-sm);
+  }
+
+  .link-group ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .link-group a {
+    display: block;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    /* 44px target — footer links used to be 23px tall. */
+    padding-block: calc((44px - 1.5em) / 2);
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .link-group a:hover {
+    color: var(--gold);
+  }
+
+  .site-footer__base {
+    max-width: var(--container);
+    margin: var(--space-2xl) auto 0;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .site-footer__disclaimer {
+    font-size: var(--fs-xs);
+    line-height: var(--lh-normal);
+    color: var(--text-subtle);
+    max-width: 90ch;
+  }
+
+  .site-footer__copy {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  @media (max-width: 860px) {
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+    .site-footer__links {
+      gap: var(--space-lg) var(--space-2xl);
+    }
+  }
+</style>

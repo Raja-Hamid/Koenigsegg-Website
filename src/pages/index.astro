@@ -1,0 +1,592 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import StatBand from '../components/StatBand.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import Button from '../components/Button.astro';
+import Cta from '../components/Cta.astro';
+import Counter from '../components/Counter.astro';
+import { models, flagship } from '../data/models';
+
+import heroImg from '../assets/home-hero.jpg';
+import techBg from '../assets/tech-bg.jpg';
+import panelLarge from '../assets/panel-large.jpg';
+import panel1 from '../assets/panel-1.jpg';
+import panel2 from '../assets/panel-2.jpg';
+import cutout from '../assets/jesko-cutout.png';
+
+const heroStats = [
+  flagship.headline.accel,
+  flagship.headline.topSpeed,
+  flagship.headline.power,
+];
+
+/* Derived from the spec table rather than typed as a literal, so it cannot
+   drift from "9-speed LST". */
+const gearCount = Number(
+  flagship.specs.find((s) => s.label === 'Transmission')?.value.match(/^(\d+)/)?.[1] ?? 0,
+);
+
+const pillars = [
+  {
+    icon: 'gear' as const,
+    title: 'Engineered, not assembled',
+    body: 'Almost every component is designed and made in-house — engines, transmissions, carbon tubs, even the wheels. Vertical integration is the whole method.',
+  },
+  {
+    icon: 'gauge' as const,
+    title: 'Performance as arithmetic',
+    body: 'Power divided by weight, multiplied by traction. Every gram removed is a gram that no longer has to be accelerated, stopped or turned.',
+  },
+  {
+    icon: 'bolt' as const,
+    title: 'Solve it differently',
+    body: 'Freevalve camshaft-less actuation. The Direct Drive transmission with no gearbox. Dihedral synchro-helix doors. Problems answered from first principles.',
+  },
+];
+---
+
+<Base
+  title="Home"
+  description="A fan-made concept site celebrating Koenigsegg — the Jesko, Gemera, Regera and Agera RS. Built as a front-end portfolio piece."
+>
+  <Hero
+    eyebrow="The art of speed"
+    title="Unleash the"
+    titleAccent="Absolut"
+    lede={`The ${flagship.fullName} was shaped around a single objective: the lowest drag Koenigsegg has ever measured.`}
+    image={heroImg}
+    imageAlt="A Koenigsegg hypercar in a darkened hangar, lit from one side"
+    scrollCue
+  >
+    <Fragment slot="actions">
+      <Button href="/collection" variant="primary" icon="arrow-right">Explore the collection</Button>
+      <Button href="/about" variant="secondary">Our story</Button>
+    </Fragment>
+    <StatBand slot="aside" specs={heroStats} />
+  </Hero>
+
+  <div id="main-content"></div>
+
+  <!-- ── Pillars ─────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="pillars-heading">
+    <div class="container">
+      <SectionHeader id="pillars-heading" eyebrow="Why it matters" title="Enter the realm of speed" class="reveal">
+        Three ideas explain most of what makes these cars what they are.
+      </SectionHeader>
+
+      <ul class="pillars">
+        {
+          pillars.map((p, i) => (
+            <li class="pillar reveal" data-reveal-delay={i + 1}>
+              <div class="pillar__icon">
+                <Icon name={p.icon} size={26} />
+              </div>
+              <h3>{p.title}</h3>
+              <p>{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Tech specs ──────────────────────────────────────── -->
+  <section class="specs" aria-labelledby="specs-heading">
+    <div class="specs__media">
+      <Image
+        src={techBg}
+        alt=""
+        widths={[720, 1200, 1960]}
+        sizes="100vw"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="specs__inner">
+      <div class="specs__col reveal">
+        <SectionHeader id="specs-heading" eyebrow="Technical" title={flagship.fullName} as="h2" align="start" />
+        <dl class="spec-list">
+          {
+            flagship.specs.map((s) => (
+              <div class="spec-row">
+                <dt>{s.label}</dt>
+                <dd>
+                  {s.value}
+                  {s.unit && <span class="spec-row__unit"> {s.unit}</span>}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <Button href={`/collection/${flagship.slug}`} variant="ghost" icon="arrow-right">
+          Full specification
+        </Button>
+      </div>
+
+      <figure class="specs__quote reveal" data-reveal-delay="2">
+        <blockquote>
+          <p>“{flagship.tagline}.”</p>
+        </blockquote>
+        <figcaption>{flagship.name} · {flagship.years}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── Panels ──────────────────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="craft-heading">
+    <div class="container">
+      <SectionHeader id="craft-heading" eyebrow="Gallery" title="Out of the studio" class="reveal">
+        Three of them, photographed where they actually get used.
+      </SectionHeader>
+      <div class="panels">
+        <figure class="panel panel--tall reveal">
+          <Image src={panelLarge} alt="A grey Koenigsegg Gemera parked side-on against a dark quarried rock face" widths={[480, 760, 1450]} sizes="(max-width: 860px) 100vw, 50vw" loading="lazy" />
+        </figure>
+        <figure class="panel reveal" data-reveal-delay="1">
+          <Image src={panel1} alt="A white Koenigsegg Jesko with its tall rear wing, parked beside a lake at dusk with mountains behind" widths={[380, 640, 1200]} sizes="(max-width: 860px) 50vw, 25vw" loading="lazy" />
+        </figure>
+        <figure class="panel reveal" data-reveal-delay="2">
+          <Image src={panel2} alt="A black Koenigsegg Jesko sliding sideways on a runway in a cloud of tyre smoke" widths={[280, 549]} sizes="(max-width: 860px) 50vw, 25vw" loading="lazy" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Counters ────────────────────────────────────────── -->
+  <section class="section figures" aria-labelledby="figures-heading">
+    <div class="container figures__inner">
+      <SectionHeader
+        id="figures-heading"
+        eyebrow="By the numbers"
+        title={`The ${flagship.fullName}, in three figures`}
+        class="reveal"
+      />
+
+      {/* Imported, never retyped — rule 2. These three used to be literals. */}
+      <div class="figures__grid">
+        <Counter
+          value={Number(flagship.headline.topSpeed.value.replace(/,/g, ''))}
+          label={flagship.headline.topSpeed.label}
+          unit={flagship.headline.topSpeed.unit}
+        />
+        <Counter value={gearCount} label="Gear ratios" unit="" spokenUnit="gears" />
+        <Counter
+          value={Number(flagship.headline.power.value.replace(/,/g, ''))}
+          label={flagship.headline.power.label}
+          unit={flagship.headline.power.unit}
+        />
+      </div>
+
+      <div class="figures__car reveal">
+        <div class="figures__rings" aria-hidden="true"></div>
+        <Image src={cutout} alt="" width={611} height={408} loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Collection teaser ───────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="lineup-heading">
+    <div class="container">
+      <SectionHeader id="lineup-heading" eyebrow="The lineup" title="Four cars, four arguments" class="reveal">
+        Each one exists to answer a different question.
+      </SectionHeader>
+
+      <ul class="lineup">
+        {
+          models.map((m, i) => (
+            <li class="lineup__item reveal" data-reveal-delay={(i % 4) + 1}>
+              <a href={`/collection/${m.slug}`}>
+                <div class="lineup__media">
+                  <Image src={m.image} alt={m.imageAlt} widths={[320, 560, 900]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" loading="lazy" />
+                </div>
+                <div class="lineup__body">
+                  <h3>{m.name}</h3>
+                  <p class="lineup__years">{m.years}</p>
+                  <p class="lineup__blurb">{m.blurb}</p>
+                  <span class="lineup__more">
+                    View the {m.name}
+                  </span>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <Cta title="Want to talk about this build?">
+    This is a portfolio concept, not a dealership — but the enquiry form works properly,
+    which is rather the point.
+    <Fragment slot="actions">
+      <Button href="/contact" variant="primary" icon="arrow-right">Get in touch</Button>
+      <Button href="/collection" variant="secondary">Browse the collection</Button>
+    </Fragment>
+  </Cta>
+</Base>
+
+<style>
+  /* ---- pillars ---- */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    list-style: none;
+  }
+
+  .pillar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    transition:
+      border-color var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .pillar:hover {
+    border-color: var(--border-strong);
+  }
+
+  @media (hover: hover) {
+    .pillar:hover {
+      translate: 0 var(--hover-lift);
+    }
+  }
+
+  .pillar__icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-pill);
+    background: rgb(var(--gold-rgb) / 0.1);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .pillar h3 {
+    font-size: var(--fs-xl);
+  }
+  .pillar p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-relaxed);
+  }
+
+  /* ---- specs ---- */
+  .specs {
+    position: relative;
+    isolation: isolate;
+    padding: var(--section-y) var(--gutter);
+  }
+
+  .specs__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .specs__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Directional scrim: solid where the type sits, open where the car is. */
+  .specs__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgb(5 5 5 / 0.95) 0%,
+      rgb(5 5 5 / 0.88) 46%,
+      rgb(5 5 5 / 0.4) 100%
+    );
+  }
+
+  .specs__inner {
+    max-width: var(--container);
+    margin-inline: auto;
+    display: grid;
+    /* The old build let this column shrink-to-fit to ~374px of a 1440px
+       section. An explicit track stops that. */
+    grid-template-columns: minmax(420px, 560px) 1fr;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  .specs__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    align-items: flex-start;
+  }
+
+  .spec-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-md);
+    padding-block: var(--space-xs);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .spec-row dt {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .spec-row dd {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .spec-row__unit {
+    font-family: var(--font-body);
+    font-size: var(--fs-xs);
+    font-weight: var(--weight-normal);
+    color: var(--gold);
+  }
+
+  .specs__quote {
+    justify-self: end;
+    max-width: 32ch;
+    text-align: right;
+    border-right: 2px solid var(--gold);
+    padding-right: var(--space-lg);
+  }
+
+  .specs__quote blockquote p {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    line-height: var(--lh-snug);
+    text-wrap: balance;
+  }
+
+  .specs__quote figcaption {
+    margin-top: var(--space-sm);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  /* ---- panels ---- */
+  .panels {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: var(--space-sm);
+    margin-top: var(--space-2xl);
+  }
+
+  .panel {
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-neutral);
+  }
+
+  .panel :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+    transition: scale var(--duration-slow) var(--ease-smooth);
+  }
+  @media (hover: hover) {
+    .panel:hover :global(img) {
+      scale: 1.05;
+    }
+  }
+
+  .panel--tall :global(img) {
+    aspect-ratio: 4 / 5;
+  }
+
+  /* ---- figures ---- */
+  .figures__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  .figures__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: var(--space-lg);
+  }
+
+  .figures__car {
+    position: relative;
+    display: grid;
+    place-items: center;
+    /* Was ~245px of dead black above the car and 190px below. */
+    padding-block: var(--space-lg);
+  }
+
+  .figures__car :global(img) {
+    position: relative;
+    width: min(72%, 560px);
+    height: auto;
+  }
+
+  .figures__rings {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+    width: min(84%, 700px);
+    aspect-ratio: 1.9;
+    border-radius: 50%;
+    border: 1px solid rgb(var(--gold-rgb) / 0.35);
+    box-shadow:
+      0 0 0 clamp(24px, 5vw, 60px) rgb(var(--gold-rgb) / 0.05),
+      0 0 90px rgb(var(--gold-rgb) / 0.14) inset;
+  }
+
+  /* ---- lineup ---- */
+  .lineup {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    list-style: none;
+  }
+
+  .lineup__item a {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition:
+      border-color var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .lineup__item a:hover {
+    border-color: var(--border-strong);
+  }
+
+  @media (hover: hover) {
+    .lineup__item a:hover {
+      translate: 0 var(--hover-lift);
+    }
+  }
+
+  .lineup__media {
+    overflow: hidden;
+  }
+  .lineup__media :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: scale var(--duration-slow) var(--ease-smooth);
+  }
+  @media (hover: hover) {
+    .lineup__item a:hover .lineup__media :global(img) {
+      scale: 1.06;
+    }
+  }
+
+  .lineup__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding: var(--space-md);
+    flex: 1;
+  }
+
+  .lineup__body h3 {
+    font-size: var(--fs-xl);
+  }
+
+  .lineup__years {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .lineup__blurb {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    margin-top: var(--space-2xs);
+    flex: 1;
+  }
+
+  .lineup__more {
+    margin-top: var(--space-sm);
+    font-size: var(--fs-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+
+
+
+  /* ---- responsive ---- */
+  @media (max-width: 1024px) {
+    .specs__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+    .specs__quote {
+      justify-self: start;
+      text-align: left;
+      border-right: 0;
+      border-left: 2px solid var(--gold);
+      padding-right: 0;
+      padding-left: var(--space-lg);
+    }
+    .specs__media::after {
+      background: linear-gradient(180deg, rgb(5 5 5 / 0.9), rgb(5 5 5 / 0.82));
+    }
+  }
+
+  @media (max-width: 860px) {
+    /* Three pillars collapse to a 2-col orphan (2 up, 1 stranded) around
+       820px. Drop straight to a single column above that point instead. */
+    .pillars {
+      grid-template-columns: 1fr;
+    }
+    .panels {
+      grid-template-columns: 1fr 1fr;
+    }
+    .panel--tall {
+      grid-column: 1 / -1;
+    }
+    .panel--tall :global(img) {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .specs__inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

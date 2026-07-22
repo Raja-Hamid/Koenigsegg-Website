@@ -1,0 +1,489 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Button from '../components/Button.astro';
+import Cta from '../components/Cta.astro';
+import Counter from '../components/Counter.astro';
+import { models, getModel, bothUnits } from '../data/models';
+
+import heroImg from '../assets/panel-large.jpg';
+import storyImg from '../assets/regera.jpg';
+
+/* Every figure quoted below is pulled from src/data/models.ts. The old
+   About page retyped its own numbers and ended up contradicting the
+   Collection page by 30 km/h. */
+const agera = getModel('agera')!;
+const regera = getModel('regera')!;
+const gemera = getModel('gemera')!;
+const jesko = getModel('jesko')!;
+
+const record = agera.headline.topSpeed;
+
+const FOUNDED = 1994;
+const yearsRunning = new Date().getFullYear() - FOUNDED;
+
+/* Principles, not "values" — these describe how the cars are made rather
+   than making claims on the company's behalf. */
+const principles = [
+  {
+    n: '01',
+    title: 'Make it, don’t buy it',
+    body:
+      'Engines, transmissions, carbon tubs, wheels. When a supplier’s catalogue sets the ceiling, the part gets designed in-house instead — which is slow, expensive, and the reason the cars are what they are.',
+  },
+  {
+    n: '02',
+    title: 'Patents before parts',
+    body:
+      'Freevalve’s camshaft-less actuation, Direct Drive, the Triplex rear suspension, the dihedral synchro-helix door. Each one started as a problem nobody sold an answer to.',
+  },
+  {
+    n: '03',
+    title: 'Records as evidence',
+    body:
+      'Top-speed runs are made in both directions on a closed road and averaged, with independent timing equipment. That turns the headline number into a test result rather than a claim.',
+  },
+];
+
+/* Milestones. Bodies interpolate the shared spec data so a figure can only
+   ever be edited in one place. */
+const milestones = [
+  {
+    year: '1994',
+    title: 'One founder, no factory',
+    body:
+      'Christian von Koenigsegg starts the company at twenty-two, on the premise that the car he wants does not exist and the shortest route to it is building the firm that makes it. A running prototype follows two years later.',
+  },
+  {
+    year: '2002',
+    title: 'The CC8S leaves the workshop',
+    body:
+      'Eight years in, the first Koenigsegg a customer could actually buy. A handful were built — enough to establish that a workshop in southern Sweden could sit at the same table as Modena and Woking.',
+  },
+  {
+    year: '2015',
+    title: 'The Regera is unveiled',
+    body: `Koenigsegg Direct Drive replaces the transmission with a single fixed ratio to the rear axle, leaving three electric motors to supply the torque the missing gears would have found. ${regera.headline.power.value} ${regera.headline.power.unit}, and no shift at all. Shown at Geneva in 2015; customer cars ran ${regera.years}.`,
+  },
+  {
+    year: '2017',
+    title: 'Nevada, both ways',
+    body: `On a closed stretch of State Route 160, an Agera RS averaged ${bothUnits(record)} across two passes in opposite directions — at the time the highest verified average top speed recorded by a production car.`,
+  },
+  {
+    year: '2020',
+    title: 'Two directions at once',
+    body: `The Gemera arrives as a four-seat Mega-GT rated at ${gemera.headline.power.value} ${gemera.headline.power.unit}, while the ${jesko.fullName} goes the other way entirely: wings stripped, underbody sealed, shaped around the lowest drag the company has measured.`,
+  },
+];
+---
+
+<Base
+  title="About this concept build"
+  description="An independent look at Koenigsegg — a Swedish workshop that builds its own engines, transmissions and records. Part of a fan-made concept site."
+>
+  <Hero
+    eyebrow={`Est. ${FOUNDED}`}
+    title="Built the"
+    titleAccent="hard way"
+    lede="Three decades of a small Swedish workshop solving problems the rest of the industry had quietly agreed to stop asking about."
+    image={heroImg}
+    imageAlt="A grey Koenigsegg Gemera parked side-on against a dark quarried rock face"
+    size="compact"
+    align="center"
+  />
+
+  <!-- ── Story ───────────────────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="story-heading">
+    <div class="container story">
+      <div class="story__text reveal">
+        <SectionHeader id="story-heading"
+          eyebrow="The story"
+          title="A workshop that decided to build everything itself"
+          as="h2"
+          align="start"
+        />
+
+        <p class="story__lead">
+          Koenigsegg is what happens when someone concludes that the car they want does not
+          exist, and that founding a company is a reasonable way to fix that.
+        </p>
+
+        <p>
+          The first prototype ran in 1996. It took until 2002 for a customer car to leave the
+          building. Six years between a running chassis and a sale is not how the industry
+          works, and it set the pattern for everything after it: given the choice between
+          ordering a component and designing one, Ängelholm has almost always designed one.
+        </p>
+
+        <p>
+          A fire destroyed the original premises in 2003. The company moved into decommissioned
+          hangars at a former air force base outside Ängelholm and took the resident fighter
+          squadron’s ghost as its emblem — one of the few badges in the business with a real
+          story behind it.
+        </p>
+
+        <p>
+          What follows from that self-reliance is the interesting part. Camshafts replaced by
+          pneumatic actuators. A gearbox removed rather than improved. A third damper spanning
+          the rear axle so the car can be soft in roll and stiff in heave at the same time.
+          Output is counted in dozens of cars a year, which is roughly what it costs to work
+          that way.
+        </p>
+      </div>
+
+      <figure class="story__media reveal" data-reveal-delay="2">
+        <Image
+          src={storyImg}
+          alt="A red Koenigsegg Regera at speed on a coastal road at sunset, waves breaking behind it"
+          widths={[560, 900, 1400]}
+          sizes="(max-width: 900px) 100vw, 45vw"
+          loading="lazy"
+        />
+        <figcaption>The Regera — one fixed ratio, three electric motors, no gearbox.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── Principles ──────────────────────────────────────── -->
+  <section class="section" aria-labelledby="principles-heading">
+    <div class="container">
+      <SectionHeader id="principles-heading" eyebrow="How it works" title="Three habits that explain the cars" class="reveal">
+        Not a mission statement — just the three things that keep turning up when you read
+        about how a Koenigsegg gets made.
+      </SectionHeader>
+
+      <ul class="principles">
+        {
+          principles.map((p, i) => (
+            <li class="principle reveal" data-reveal-delay={i + 1}>
+              <p class="principle__n" aria-hidden="true">{p.n}</p>
+              <h3>{p.title}</h3>
+              <p class="principle__body">{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Timeline ────────────────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="timeline-heading">
+    <div class="container container--narrow">
+      <SectionHeader id="timeline-heading" eyebrow="Milestones" title={`${yearsRunning} years, five moments`} class="reveal" />
+
+      <ol class="timeline">
+        {
+          milestones.map((m) => (
+            <li class="timeline__item reveal">
+              {/* The marker is sized by its own content. The old build gave it a
+                  fixed 28px circle, which clipped "1994" down to "994". */}
+              <div class="timeline__marker">
+                <p class="timeline__year">{m.year}</p>
+                <span class="timeline__rail" aria-hidden="true"></span>
+              </div>
+
+              <div class="timeline__card">
+                <h3>{m.title}</h3>
+                <p>{m.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Figures ─────────────────────────────────────────── -->
+  <section class="section figures" aria-labelledby="figures-heading">
+    <div class="container figures__inner">
+      <SectionHeader
+        id="figures-heading"
+        eyebrow="By the numbers"
+        title="Three numbers that cover it"
+        class="reveal"
+      />
+      <div class="figures__grid">
+        <Counter value={yearsRunning} label={`Years since ${FOUNDED}`} />
+        <Counter value={models.length} label="Models in this collection" />
+        <Counter
+          value={Number(record.value.replace(/,/g, ''))}
+          label="Verified two-way record"
+          unit={record.unit}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <Cta title="Spotted something wrong?">
+    This is an independent tribute build, not a Koenigsegg channel — so corrections,
+    questions about how the site was made, and work enquiries all land in the same inbox.
+    <Fragment slot="actions">
+      <Button href="/contact" variant="primary" icon="arrow-right">Get in touch</Button>
+      <Button href="/collection" variant="secondary">Browse the collection</Button>
+    </Fragment>
+  </Cta>
+</Base>
+
+<style>
+  /* ---- story ---- */
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2xl);
+    /* start, not center — the text column is taller, and centring it left a
+       large gap under the photo. */
+    align-items: start;
+  }
+
+  .story__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .story__text p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-relaxed);
+    max-width: var(--container-text);
+  }
+
+  /* Two classes, so this outranks `.story__text p` on specificity rather
+     than relying on source order. */
+  .story__text .story__lead {
+    color: var(--text);
+    font-size: var(--fs-md);
+    line-height: var(--lh-relaxed);
+    border-left: 2px solid var(--gold);
+    padding-left: var(--space-md);
+  }
+
+  .story__media :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    /* An outline sits outside the box without taking layout space, so the
+       old offset "accent frame" cannot push into the copy column. */
+    outline: 1px solid var(--border-strong);
+    outline-offset: var(--space-2xs);
+  }
+
+  .story__media figcaption {
+    margin-top: var(--space-md);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  /* ---- principles ---- */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    list-style: none;
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    transition:
+      border-color var(--duration-base) var(--ease-smooth),
+      translate var(--duration-base) var(--ease-smooth);
+  }
+
+  .principle:hover {
+    border-color: var(--border-strong);
+  }
+
+  /* Transform-only hover: guard it so the lift does not stick after a tap
+     on touch devices. The border-colour feedback above stays unguarded. */
+  @media (hover: hover) {
+    .principle:hover {
+      translate: 0 var(--hover-lift);
+    }
+  }
+
+  .principle__n {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .principle h3 {
+    font-size: var(--fs-xl);
+  }
+
+  .principle__body {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-relaxed);
+  }
+
+  /* ---- timeline ---- */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--space-2xl);
+    list-style: none;
+  }
+
+  .timeline__item {
+    display: grid;
+    /* `auto` lets the year pill be exactly as wide as its digits. */
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-md);
+    padding-bottom: var(--space-md);
+  }
+
+  .timeline__marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .timeline__year {
+    font-family: var(--font-display);
+    font-size: var(--fs-base);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    letter-spacing: var(--tracking-normal);
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding: var(--space-2xs) var(--space-xs);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+  }
+
+  /* The connecting rail is a flex child, not an absolute overlay — it can
+     only ever occupy the marker column. */
+  .timeline__rail {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(180deg, rgb(var(--gold-rgb) / 0.5), rgb(var(--gold-rgb) / 0.05));
+  }
+
+  .timeline__item:last-child .timeline__rail {
+    display: none;
+  }
+
+  .timeline__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-base) var(--ease-smooth);
+  }
+
+  .timeline__card:hover {
+    border-color: var(--border-strong);
+  }
+
+  .timeline__card h3 {
+    font-size: var(--fs-lg);
+  }
+
+  .timeline__card p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-relaxed);
+  }
+
+  /* ---- figures ---- */
+  .figures__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .figures__intro {
+    color: var(--text-subtle);
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+  }
+
+  .figures__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: var(--space-lg);
+  }
+
+
+
+
+  /* ---- responsive ---- */
+  /* The three principle cards use auto-fit, which drops to two columns
+     around ~970px and orphans the third on its own row. Hold a real
+     three-column row past that point... */
+  @media (max-width: 980px) {
+    .principles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .story {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  /* ...then stack to one once three no longer read at width. Placed after
+     the three-column rule above so it wins at equal specificity. */
+  @media (max-width: 860px) {
+    .principles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Same three-item orphan for the figure counters (auto-fit collapses to
+     two near ~730px) — keep the compact three-across row a while longer. */
+  @media (max-width: 740px) {
+    .figures__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .timeline__item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xs);
+    }
+    .timeline__marker {
+      flex-direction: row;
+      align-items: center;
+    }
+    .timeline__rail {
+      flex: 1;
+      width: auto;
+      height: 1px;
+      background: linear-gradient(90deg, rgb(var(--gold-rgb) / 0.5), rgb(var(--gold-rgb) / 0.05));
+    }
+    .figures__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

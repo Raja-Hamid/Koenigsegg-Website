@@ -1,0 +1,25 @@
+{
+  "name": "koenigsegg-concept",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A fan-made concept site for Koenigsegg. Not affiliated with Koenigsegg Automotive AB.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check --minimumSeverity warning"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "astro": "^5.14.1",
+    "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.9.3"
+  }
+}

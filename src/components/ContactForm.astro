@@ -1,0 +1,480 @@
+---
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { inquiryTypes, contact } from '../data/site';
+
+/**
+ * The enquiry form.
+ *
+ * The old one was inert in every way that matters: no action, no method, no
+ * submit handler, and not one control had a `name` attribute — so pressing
+ * the gold CTA fired a GET to the current URL, reloaded the page, and
+ * discarded everything the visitor had typed. It also had no validation
+ * feedback, no loading state and no success state.
+ *
+ * This one:
+ *  - has name + autocomplete on every control
+ *  - validates on blur and on submit, with messages tied by aria-describedby
+ *  - moves focus to the first invalid field and announces the count
+ *  - has real pending / success / error states and guards double-submit
+ *  - degrades to a normal POST when JS is off (given a real ENDPOINT)
+ *
+ * DEMO MODE: with ENDPOINT empty the submit is simulated so the states are
+ * demonstrable without a backend. Set PUBLIC_CONTACT_ENDPOINT (e.g. a
+ * Formspree or Web3Forms URL) to make it send for real. Nothing about the
+ * markup changes — only where it posts.
+ */
+const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+---
+
+<form
+  class="enquiry"
+  data-enquiry
+  method="post"
+  action={ENDPOINT || undefined}
+  data-demo={ENDPOINT ? undefined : 'true'}
+  novalidate
+>
+  <div class="enquiry__row">
+    <div class="field">
+      <label for="firstName">First name <span aria-hidden="true">*</span></label>
+      <input
+        id="firstName"
+        name="firstName"
+        type="text"
+        autocomplete="given-name"
+        required
+        aria-required="true"
+        aria-describedby="firstName-error"
+      />
+      <p class="field__error" id="firstName-error" data-error hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="lastName">Last name <span aria-hidden="true">*</span></label>
+      <input
+        id="lastName"
+        name="lastName"
+        type="text"
+        autocomplete="family-name"
+        required
+        aria-required="true"
+        aria-describedby="lastName-error"
+      />
+      <p class="field__error" id="lastName-error" data-error hidden></p>
+    </div>
+  </div>
+
+  <div class="enquiry__row">
+    <div class="field">
+      <label for="email">Email <span aria-hidden="true">*</span></label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        aria-required="true"
+        aria-describedby="email-error"
+      />
+      <p class="field__error" id="email-error" data-error hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone <span class="field__optional">(optional)</span></label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" aria-describedby="phone-error" />
+      <p class="field__error" id="phone-error" data-error hidden></p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="inquiry">What is this about? <span aria-hidden="true">*</span></label>
+    <div class="field__select">
+      <select id="inquiry" name="inquiry" required aria-required="true" aria-describedby="inquiry-error">
+        <option value="">Choose one…</option>
+        {inquiryTypes.map((t) => <option value={t}>{t}</option>)}
+      </select>
+      <Icon name="chevron-down" size={18} />
+    </div>
+    <p class="field__error" id="inquiry-error" data-error hidden></p>
+  </div>
+
+  <div class="field">
+    <label for="message">Message <span aria-hidden="true">*</span></label>
+    <textarea
+      id="message"
+      name="message"
+      rows="5"
+      required
+      minlength="10"
+      maxlength="2000"
+      aria-required="true"
+      aria-describedby="message-error message-hint"
+    ></textarea>
+    <p class="field__hint" id="message-hint">
+      <span>A sentence or two is plenty.</span>
+      <span class="field__count" data-count aria-hidden="true">0 / 2000</span>
+    </p>
+    <p class="field__error" id="message-error" data-error hidden></p>
+  </div>
+
+  {/* Honeypot — bots fill it, humans never see it. */}
+  <div class="enquiry__trap" aria-hidden="true">
+    <label for="company">Company</label>
+    <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <p class="enquiry__required"><span aria-hidden="true">*</span> Required</p>
+
+  <div class="enquiry__actions">
+    <Button type="submit" variant="primary" icon="arrow-right" data-submit>Send enquiry</Button>
+    <p class="enquiry__note">{contact.emailNote}.</p>
+  </div>
+
+  {/* Announced by screen readers when it changes. */}
+  <div class="enquiry__status" role="status" aria-live="polite" data-status hidden></div>
+</form>
+
+<style>
+  .enquiry {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .enquiry__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    min-width: 0;
+  }
+
+  /* A plain visible label. The old build used a floating label keyed on
+     :valid, so the optional phone field's label floated permanently while
+     empty and the email label collapsed onto the typed text. */
+  .field label {
+    font-size: var(--fs-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .field label span[aria-hidden] {
+    color: var(--gold);
+  }
+
+  .field__optional {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-subtle);
+    font-weight: var(--weight-normal);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-xs) var(--space-sm);
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid var(--border-control);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: var(--fs-sm);
+    transition:
+      border-color var(--duration-fast) var(--ease-smooth),
+      background-color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 132px;
+    line-height: var(--lh-normal);
+  }
+
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--border-strong);
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--gold);
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .field select {
+    appearance: none;
+    cursor: pointer;
+    padding-right: var(--space-2xl);
+  }
+
+  .field option {
+    background: var(--bg-surface);
+    color: var(--text);
+  }
+
+  .field__select {
+    position: relative;
+    display: grid;
+  }
+
+  .field__select :global(.icon) {
+    position: absolute;
+    right: var(--space-sm);
+    top: 50%;
+    translate: 0 -50%;
+    pointer-events: none;
+    color: var(--text-muted);
+  }
+
+  .field__hint {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .field__count {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .field__error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    font-size: var(--fs-xs);
+    color: var(--danger);
+  }
+
+  .field[data-invalid] input,
+  .field[data-invalid] select,
+  .field[data-invalid] textarea {
+    border-color: var(--danger);
+  }
+
+  .enquiry__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .enquiry__required {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+  .enquiry__required span {
+    color: var(--gold);
+  }
+
+  .enquiry__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  .enquiry__note {
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .enquiry :global([data-submit][aria-busy='true']) {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .enquiry__status {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    border: 1px solid;
+  }
+
+  .enquiry__status[data-tone='success'] {
+    color: var(--success);
+    border-color: rgb(111 208 140 / 0.4);
+    background: rgb(111 208 140 / 0.08);
+  }
+
+  .enquiry__status[data-tone='error'] {
+    color: var(--danger);
+    border-color: rgb(255 107 94 / 0.4);
+    background: rgb(255 107 94 / 0.08);
+  }
+
+  @media (max-width: 620px) {
+    .enquiry__row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-enquiry]');
+  const status = form?.querySelector<HTMLElement>('[data-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+  const submitLabel = submit?.querySelector('span');
+
+  if (form && status && submit && submitLabel) {
+    const originalLabel = submitLabel.textContent ?? 'Send enquiry';
+    const isDemo = form.dataset.demo === 'true';
+
+    type Control = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const controls = Array.from(
+      form.querySelectorAll<Control>('input[name], select[name], textarea[name]'),
+    ).filter((c) => c.name !== 'company');
+
+    /* Live character count on the message field. */
+    const message = form.querySelector<HTMLTextAreaElement>('#message');
+    const counter = form.querySelector<HTMLElement>('[data-count]');
+    if (message && counter) {
+      const max = message.maxLength;
+      const sync = () => {
+        counter.textContent = `${message.value.length} / ${max}`;
+      };
+      message.addEventListener('input', sync);
+      sync();
+    }
+
+    /* A field that is required but holds only whitespace is not really filled;
+       the browser's own valueMissing check does not catch " ". */
+    const isBlank = (c: Control) =>
+      c.hasAttribute('required') && c.value.trim() === '';
+
+    const messageFor = (c: Control): string => {
+      if (c.validity.valueMissing || isBlank(c)) {
+        return c.tagName === 'SELECT' ? 'Please choose an option.' : 'This field is required.';
+      }
+      if (c.validity.tooShort) {
+        return `Please add a little more — at least ${(c as HTMLInputElement).minLength} characters.`;
+      }
+      if (c.validity.typeMismatch && c.type === 'email') {
+        return 'That does not look like an email address.';
+      }
+      if (c.validity.typeMismatch && c.type === 'tel') {
+        return 'Please check the phone number.';
+      }
+      return c.validationMessage || 'Please check this field.';
+    };
+
+    const setFieldState = (c: Control, message: string | null) => {
+      const field = c.closest<HTMLElement>('.field');
+      const error = field?.querySelector<HTMLElement>('[data-error]');
+      if (!field || !error) return;
+
+      if (message) {
+        field.setAttribute('data-invalid', '');
+        c.setAttribute('aria-invalid', 'true');
+        error.textContent = message;
+        error.hidden = false;
+      } else {
+        field.removeAttribute('data-invalid');
+        c.removeAttribute('aria-invalid');
+        error.textContent = '';
+        error.hidden = true;
+      }
+    };
+
+    const validate = (c: Control) => {
+      const ok = c.checkValidity() && !isBlank(c);
+      setFieldState(c, ok ? null : messageFor(c));
+      return ok;
+    };
+
+    /* Validate on blur, then live-correct once a field is already marked bad —
+       so the form never nags at someone who is still mid-word. */
+    controls.forEach((c) => {
+      c.addEventListener('blur', () => validate(c));
+      c.addEventListener('input', () => {
+        if (c.closest('.field')?.hasAttribute('data-invalid')) validate(c);
+      });
+    });
+
+    const setStatus = (tone: 'success' | 'error', text: string) => {
+      status.dataset.tone = tone;
+      status.textContent = text;
+      status.hidden = false;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      if (submit.getAttribute('aria-busy') === 'true') {
+        e.preventDefault();
+        return;
+      }
+
+      const invalid = controls.filter((c) => !validate(c));
+
+      if (invalid.length > 0) {
+        e.preventDefault();
+        setStatus(
+          'error',
+          `${invalid.length} field${invalid.length > 1 ? 's need' : ' needs'} attention before this can be sent.`,
+        );
+        invalid[0].focus();
+        return;
+      }
+
+      /* Honeypot: silently accept and do nothing. */
+      const trap = form.querySelector<HTMLInputElement>('input[name="company"]');
+      if (trap?.value) {
+        e.preventDefault();
+        return;
+      }
+
+      /* With no endpoint configured there is nowhere to post, so we own the
+         submit entirely and simulate it rather than reloading the page. */
+      e.preventDefault();
+
+      status.hidden = true;
+      submit.setAttribute('aria-busy', 'true');
+      submitLabel.textContent = 'Sending…';
+
+      try {
+        if (isDemo) {
+          await new Promise((r) => setTimeout(r, 900));
+        } else {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+          if (!res.ok) throw new Error(String(res.status));
+        }
+
+        form.reset();
+        controls.forEach((c) => setFieldState(c, null));
+        setStatus(
+          'success',
+          isDemo
+            ? 'Thank you — that worked. This is a concept build, so nothing was actually sent, but every field validated and the submission was handled properly.'
+            : 'Thank you. Your enquiry has been sent and we will come back to you shortly.',
+        );
+      } catch {
+        setStatus(
+          'error',
+          `Something went wrong sending that. Please try again, or email us directly.`,
+        );
+      } finally {
+        submit.removeAttribute('aria-busy');
+        submitLabel.textContent = originalLabel;
+      }
+    });
+  }
+</script>

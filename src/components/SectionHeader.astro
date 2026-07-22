@@ -1,0 +1,94 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * The eyebrow / heading / divider lockup that was copy-pasted five times
+ * across the old build. `as` keeps the document outline correct when a
+ * section heading is not an <h2>.
+ */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  as?: 'h1' | 'h2' | 'h3';
+  align?: 'center' | 'start';
+  class?: string;
+  /**
+   * Put the section's aria-labelledby target on the real visible heading.
+   * Without this, pages ended up pairing a visible heading with a second,
+   * visually-hidden one carrying the id — two headings per section in the
+   * document outline saying the same thing.
+   */
+  id?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  as: Tag = 'h2',
+  align = 'center',
+  class: className = '',
+  id,
+}: Props = Astro.props;
+---
+
+<div class={`section-header section-header--${align} ${className}`}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <Tag id={id}>{title}</Tag>
+  <div class="divider" aria-hidden="true">
+    <span></span>
+    <Icon name="diamond" size={11} />
+    <span></span>
+  </div>
+  {Astro.slots.has('default') && <p class="lede"><slot /></p>}
+</div>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .section-header--center {
+    align-items: center;
+    text-align: center;
+  }
+  .section-header--center .lede {
+    margin-inline: auto;
+  }
+
+  .section-header--start {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .section-header h1 {
+    font-size: var(--fs-3xl);
+  }
+  .section-header h2 {
+    font-size: var(--fs-3xl);
+  }
+  .section-header h3 {
+    font-size: var(--fs-2xl);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    color: var(--gold);
+  }
+
+  .divider span {
+    width: clamp(32px, 6vw, 56px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(var(--gold-rgb) / 0.7));
+  }
+  .divider span:last-child {
+    background: linear-gradient(90deg, rgb(var(--gold-rgb) / 0.7), transparent);
+  }
+
+  .section-header .lede {
+    margin-top: var(--space-2xs);
+  }
+</style>

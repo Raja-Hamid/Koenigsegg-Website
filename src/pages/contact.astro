@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { contact, site } from '../data/site';
+
+import heroImg from '../assets/contact-hero.jpg';
+
+const cards = [
+  {
+    icon: 'map-pin' as const,
+    title: 'Where',
+    lines: contact.address,
+    note: contact.addressNote,
+    /* Render the postal block as a semantic <address>. No LocalBusiness /
+       PostalAddress JSON-LD is emitted on purpose — this address is invented,
+       and marking up a fictional address as machine-readable would be worse
+       than leaving it as prose. Do not "fix" that by adding structured data. */
+    isAddress: true,
+  },
+  {
+    icon: 'envelope' as const,
+    title: 'Email',
+    lines: [contact.email],
+    href: `mailto:${contact.email}`,
+    note: contact.emailNote,
+  },
+  {
+    icon: 'clock' as const,
+    title: 'Hours',
+    lines: [contact.hours],
+    note: contact.hoursNote,
+  },
+];
+---
+
+<Base
+  title="Get in touch"
+  description="Get in touch about this Koenigsegg concept build — a front-end portfolio piece by Raja Hamid."
+>
+  <Hero
+    eyebrow="Contact"
+    title="We'd love to"
+    titleAccent="hear from you"
+    lede="Questions about the build, the stack, or the design decisions behind it — all welcome."
+    image={heroImg}
+    imageAlt="An orange Koenigsegg Agera RS with both dihedral doors raised, lit head-on in a dark studio"
+    size="compact"
+    align="center"
+  />
+
+  <section class="section" aria-labelledby="contact-heading">
+    <div class="container contact">
+      <div class="contact__aside">
+        <SectionHeader id="contact-heading" title="Details" as="h2" align="start" class="reveal" />
+
+        <ul class="cards">
+          {
+            cards.map((card, i) => (
+              <li class="card reveal" data-reveal-delay={i + 1}>
+                <span class="card__icon" aria-hidden="true">
+                  <Icon name={card.icon} size={19} />
+                </span>
+                <div class="card__body">
+                  <h3>{card.title}</h3>
+                  {card.href ? (
+                    <p>
+                      <a href={card.href}>{card.lines[0]}</a>
+                    </p>
+                  ) : 'isAddress' in card && card.isAddress ? (
+                    <address>{card.lines.map((line: string) => <span>{line}</span>)}</address>
+                  ) : (
+                    card.lines.map((line: string) => <p>{line}</p>)
+                  )}
+                  <p class="card__note">{card.note}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="contact__disclaimer">
+          {site.disclaimer}
+        </p>
+      </div>
+
+      <div class="contact__form reveal">
+        <SectionHeader title="Send a message" as="h2" align="start">
+          Every field validates, and you will get a real response state — even though this
+          concept build has no mailbox behind it.
+        </SectionHeader>
+        <ContactForm />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+    align-items: start;
+  }
+
+  .contact__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    list-style: none;
+  }
+
+  .card {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-base) var(--ease-smooth);
+  }
+
+  .card:hover {
+    border-color: var(--border-strong);
+  }
+
+  .card__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-pill);
+    background: rgb(var(--gold-rgb) / 0.1);
+    border: 1px solid var(--border);
+    color: var(--gold);
+  }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .card__body h3 {
+    font-family: var(--font-body);
+    font-size: var(--fs-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--space-3xs);
+  }
+
+  .card__body p,
+  .card__body address {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .card__body address {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card__body a {
+    display: inline-flex;
+    align-items: center;
+    /* Keeps the tap target at 44px without changing how the link reads. */
+    min-height: 44px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 3px;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+  .card__body a:hover {
+    color: var(--gold);
+  }
+
+  .card__note {
+    margin-top: var(--space-3xs);
+    font-size: var(--fs-xs);
+    color: var(--text-subtle);
+  }
+
+  .contact__disclaimer {
+    font-size: var(--fs-xs);
+    line-height: var(--lh-relaxed);
+    color: var(--text-subtle);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .contact__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: clamp(var(--space-md), 3vw, var(--space-2xl));
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (max-width: 940px) {
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,395 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import StatBand from '../../components/StatBand.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import Button from '../../components/Button.astro';
+import Cta from '../../components/Cta.astro';
+import { models } from '../../data/models';
+import type { Model } from '../../data/models';
+
+/**
+ * One statically generated page per car.
+ *
+ * The old build served all four models from a single URL and swapped the
+ * figures with JS on tab click, so nothing was linkable, indexable or
+ * shareable — and the first click wrote a bare "330" over "330 mph".
+ * Here each car is a real document with its own metadata, and every figure
+ * is rendered from src/data/models.ts.
+ */
+export function getStaticPaths() {
+  return models.map((model, i) => ({
+    params: { model: model.slug },
+    props: {
+      model,
+      // Wrap around, so neither end of the lineup is a dead end.
+      prev: models[(i - 1 + models.length) % models.length],
+      next: models[(i + 1) % models.length],
+    },
+  }));
+}
+
+interface Props {
+  model: Model;
+  prev: Model;
+  next: Model;
+}
+
+const { model, prev, next } = Astro.props;
+const { accel, topSpeed, power } = model.headline;
+
+const heroStats = [accel, topSpeed, power];
+
+/* Genuinely per-model metadata — the whole reason these routes exist. */
+const metaDescription =
+  `${model.fullName} (${model.years}) — ${model.tagline.replace(/[.]$/, '')}. ` +
+  `${power.value} ${power.unit}, ${topSpeed.value} ${topSpeed.unit}, ` +
+  `0–100 km/h in ${accel.value} ${accel.unit}. Full specification on an independent concept build.`;
+
+/* Pulled from the spec list rather than retyped. */
+const engine = model.specs.find((s) => s.label === 'Engine');
+const transmission = model.specs.find((s) => s.label === 'Transmission');
+
+/* Structured data: a Product per car plus a breadcrumb trail. additionalProperty
+   carries the spec figures a search engine can surface. */
+const pageUrl = new URL(`/collection/${model.slug}/`, Astro.site).href;
+const modelSchema = [
+  {
+    '@type': 'Product',
+    '@id': `${pageUrl}#product`,
+    name: `Koenigsegg ${model.fullName}`,
+    category: 'Hypercar',
+    url: pageUrl,
+    image: new URL(`/og-${model.slug}.jpg`, Astro.site).href,
+    description: model.description,
+    brand: { '@type': 'Brand', name: 'Koenigsegg' },
+    additionalProperty: model.specs.map((s) => ({
+      '@type': 'PropertyValue',
+      name: s.label,
+      value: s.unit ? `${s.value} ${s.unit}` : s.value,
+    })),
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.href },
+      { '@type': 'ListItem', position: 2, name: 'Collection', item: new URL('/collection/', Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: model.fullName, item: pageUrl },
+    ],
+  },
+];
+---
+
+<Base
+  title={model.fullName}
+  description={metaDescription}
+  ogImage={`/og-${model.slug}.jpg`}
+  schema={modelSchema}
+>
+  <Hero
+    eyebrow={model.years}
+    title={model.name}
+    lede={model.tagline}
+    image={model.image}
+    imageAlt={model.imageAlt}
+    priority={true}
+  >
+    <StatBand slot="aside" specs={heroStats} />
+  </Hero>
+
+  <!-- ── Overview ────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="overview-heading">
+    <div class="container overview">
+      <div class="overview__copy reveal">
+        <SectionHeader id="overview-heading" eyebrow="Overview" title={model.blurb} as="h2" align="start" />
+        <p class="overview__body">{model.description}</p>
+      </div>
+
+      <aside class="overview__meta reveal" data-reveal-delay="2">
+        <h3 class="overview__meta-title">At a glance</h3>
+        <dl>
+          <div class="meta-row">
+            <dt>Designation</dt>
+            <dd>{model.fullName}</dd>
+          </div>
+          <div class="meta-row">
+            <dt>Production</dt>
+            <dd>{model.years}</dd>
+          </div>
+          {
+            engine && (
+              <div class="meta-row">
+                <dt>Powertrain</dt>
+                <dd>{engine.value}</dd>
+              </div>
+            )
+          }
+          {
+            transmission && (
+              <div class="meta-row">
+                <dt>Drive</dt>
+                <dd>{transmission.value}</dd>
+              </div>
+            )
+          }
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ── Full specification ──────────────────────────────── -->
+  <section class="section section--deep" aria-labelledby="spec-heading">
+    <div class="container container--narrow">
+      <SectionHeader id="spec-heading" eyebrow="Specification" title={`${model.name} in full`} class="reveal" />
+
+      <dl class="spec-list reveal" data-reveal-delay="1">
+        {
+          model.specs.map((s) => (
+            <div class="spec-row">
+              <dt>{s.label}</dt>
+              <dd>
+                <span class="spec-row__value">{s.value}</span>
+                {s.unit && (
+                  <span class="spec-row__unit">
+                    <span aria-hidden="true">{s.unit}</span>
+                    <span class="visually-hidden">{s.spoken ?? s.unit}</span>
+                  </span>
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <p class="spec-note reveal" data-reveal-delay="2">
+        Published headline figures, reproduced here for a portfolio build. Nothing on this page
+        is a specification sheet, an offer or a quotation.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Prev / next ─────────────────────────────────────── -->
+  <nav class="section model-nav" aria-label="Other models">
+    <div class="container model-nav__inner reveal">
+      <div class="model-nav__link model-nav__link--prev">
+        <p class="model-nav__dir">Previous</p>
+        <Button
+          href={`/collection/${prev.slug}`}
+          variant="ghost"
+          icon="arrow-left"
+          aria-label={`Previous model: ${prev.fullName}`}
+        >
+          {prev.name}
+        </Button>
+      </div>
+
+      <div class="model-nav__all">
+        <Button href="/collection" variant="secondary">All four cars</Button>
+      </div>
+
+      <div class="model-nav__link model-nav__link--next">
+        <p class="model-nav__dir">Next</p>
+        <Button
+          href={`/collection/${next.slug}`}
+          variant="ghost"
+          icon="arrow-right"
+          aria-label={`Next model: ${next.fullName}`}
+        >
+          {next.name}
+        </Button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <Cta title={`Questions about the ${model.name} page?`}>
+    This is a concept site by an independent developer, so there is nothing to sell —
+    but the enquiry form works, and feedback on the build is welcome.
+    <Fragment slot="actions">
+      <Button href="/contact" variant="primary" icon="arrow-right">Get in touch</Button>
+      <Button href="/collection" variant="secondary">Back to the collection</Button>
+    </Fragment>
+  </Cta>
+</Base>
+
+<style>
+  /* ---- overview ---- */
+  .overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .overview__body {
+    margin-top: var(--space-md);
+    font-size: var(--fs-md);
+    line-height: var(--lh-relaxed);
+    color: var(--text-muted);
+    max-width: var(--container-text);
+  }
+
+  .overview__meta {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+  }
+
+  .overview__meta-title {
+    font-size: var(--fs-xs);
+    font-family: var(--font-body);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--space-xs);
+  }
+
+  .meta-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .meta-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .meta-row dt {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .meta-row dd {
+    font-size: var(--fs-sm);
+    line-height: var(--lh-snug);
+    color: var(--text);
+  }
+
+  /* ---- specification ---- */
+  .spec-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--space-2xl);
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-md);
+    padding-block: var(--space-xs);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .spec-row dt {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .spec-row dd {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3xs);
+    text-align: right;
+  }
+
+  .spec-row__value {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .spec-row__unit {
+    font-size: var(--fs-xs);
+    font-weight: var(--weight-normal);
+    color: var(--gold);
+  }
+
+  .spec-note {
+    margin-top: var(--space-md);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-relaxed);
+    color: var(--text-subtle);
+  }
+
+  /* ---- prev / next ---- */
+  .model-nav {
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .model-nav__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .model-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .model-nav__link--next {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .model-nav__dir {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  /* The button always renders its icon after the label; the back arrow
+     belongs in front of it, and should travel the other way on hover. */
+  .model-nav__link--prev :global(.icon) {
+    order: -1;
+  }
+  @media (hover: hover) {
+    .model-nav__link--prev :global(.btn):hover :global(.icon) {
+      translate: -3px 0;
+    }
+  }
+
+  .model-nav__all {
+    justify-self: center;
+  }
+
+
+
+
+  /* ---- responsive ---- */
+  @media (max-width: 900px) {
+    .overview {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  @media (max-width: 640px) {
+    /* Three across becomes a stack rather than three squeezed columns. */
+    .model-nav__inner {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      gap: var(--space-lg);
+    }
+    .model-nav__link,
+    .model-nav__link--next {
+      align-items: center;
+      text-align: center;
+    }
+    .model-nav__all {
+      order: 1;
+    }
+  }
+</style>

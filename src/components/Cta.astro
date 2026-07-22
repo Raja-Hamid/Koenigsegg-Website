@@ -1,0 +1,26 @@
+---
+import SectionHeader from './SectionHeader.astro';
+
+/**
+ * The closing call-to-action band.
+ *
+ * Was copy-pasted — markup + ~30 lines of identical CSS — into all four
+ * content pages. One source now; the `.cta*` styles live in base.css.
+ */
+interface Props {
+  title: string;
+  as?: 'h2' | 'h3';
+}
+const { title, as = 'h2' }: Props = Astro.props;
+---
+
+<section class="section cta">
+  <div class="container container--narrow cta__inner reveal">
+    <SectionHeader title={title} as={as}>
+      <slot />
+    </SectionHeader>
+    <div class="cta__actions">
+      <slot name="actions" />
+    </div>
+  </div>
+</section>

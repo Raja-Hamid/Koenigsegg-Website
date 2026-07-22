@@ -1,0 +1,115 @@
+---
+import type { Spec } from '../data/models';
+
+/**
+ * The three-figure band used in the heroes and on model pages.
+ * Units are rendered from the data, never baked into a display string —
+ * the old model switcher wrote a bare "330" over "330 mph" on first click.
+ */
+interface Props {
+  specs: Spec[];
+  variant?: 'panel' | 'bare';
+  class?: string;
+}
+
+const { specs, variant = 'panel', class: className = '' } = Astro.props;
+---
+
+<dl class={`stat-band stat-band--${variant} ${className}`}>
+  {
+    /* <dt> must precede its <dd> — that is the <dl> content model, and the
+       term/definition pairing is what assistive tech reads. The value is
+       shown above the label visually via `flex-direction: column-reverse`. */
+    specs.map((spec) => (
+      <div class="stat-band__item">
+        <dt>{spec.label}</dt>
+        <dd>
+          <span class="stat-band__value">{spec.value}</span>
+          {spec.unit && (
+            <span class="stat-band__unit">
+              <span aria-hidden="true">{spec.unit}</span>
+              <span class="visually-hidden">{spec.spoken ?? spec.unit}</span>
+            </span>
+          )}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .stat-band {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+
+  .stat-band--panel {
+    gap: clamp(var(--space-md), 3vw, var(--space-xl));
+    padding: var(--space-md) var(--space-lg);
+    background: rgb(5 5 5 / 0.72);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .stat-band__item {
+    display: flex;
+    /* Source order is dt-then-dd for correct semantics; reversed here so the
+       figure still reads above its label. */
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 2px;
+    position: relative;
+  }
+
+  .stat-band--panel .stat-band__item + .stat-band__item::before {
+    content: '';
+    position: absolute;
+    left: calc(clamp(var(--space-md), 3vw, var(--space-xl)) / -2);
+    top: 6%;
+    height: 88%;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .stat-band__item dd {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: var(--font-display);
+    line-height: 1;
+  }
+
+  .stat-band__value {
+    font-size: var(--fs-2xl);
+    font-weight: var(--weight-bold);
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-band__unit {
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    font-weight: var(--weight-normal);
+    color: var(--text-muted);
+  }
+
+  .stat-band__item dt {
+    font-size: var(--fs-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  @media (max-width: 480px) {
+    .stat-band--panel {
+      width: 100%;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .stat-band--panel .stat-band__item + .stat-band__item::before {
+      display: none;
+    }
+  }
+</style>
