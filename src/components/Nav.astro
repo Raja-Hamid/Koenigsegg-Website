@@ -1,8 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import { nav, contact } from '../data/site';
 import { models } from '../data/models';
-import LogoMark from './LogoMark.astro';
 import { withBase } from '../lib/paths';
+import logo from '../assets/logo.png';
 
 /**
  * Site navigation.
@@ -30,7 +31,7 @@ const inSection = (href: string) =>
 
 <header class="site-nav" data-nav>
   <a class="site-nav__logo" href={withBase('/')} aria-label="Koenigsegg concept — home">
-    <LogoMark size={44} />
+    <Image src={logo} alt="" width={48} height={48} loading="eager" densities={[1, 2]} />
   </a>
 
   <button
@@ -118,8 +119,8 @@ const inSection = (href: string) =>
       scale: 1.06;
     }
   }
-  .site-nav__logo :global(.logo-mark) {
-    width: clamp(38px, 3.4vw, 46px);
+  .site-nav__logo :global(img) {
+    width: clamp(36px, 3.2vw, 46px);
     height: auto;
   }
 
